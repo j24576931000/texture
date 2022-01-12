@@ -21,13 +21,13 @@
 glm::vec3 worldPos;
 bool updateFlag = false;
 
-GLuint faceID=0;
+GLuint faceID = 0;
 //bool isRightButtonPress = false;
 GLuint currentFaceID = 0;
 int currentMouseX = 0;
 int currentMouseY = 0;
 int windowWidth = 800;
-int windowHeight = 600; 
+int windowHeight = 600;
 int selectionMode = 1;
 GLuint			program;			// shader program
 glm::mat4		proj_matrix;		// projection matrix
@@ -43,13 +43,14 @@ DrawPickingFaceShader drawPickingFaceShader;
 PickingShader pickingShader;
 PickingTexture pickingTexture;
 DrawPointShader drawPointShader;
-bool light=true;
+bool light = true;
 // vbo for drawing point
 GLuint vboPoint;
-float rotation=0.0f,scal=0.0f, translat=0.0f;
-bool scaling = false, rotating = true, render_tex = false,translating=false;
+float rotation = 0.0f, scal = 0.0f, translat = 0.0f;
+bool scaling = false, rotating = true, render_tex = false, translating = false;
 //GLuint TEXTURE;
-GLuint id;
+GLuint id, id2;
+int tex_id = 0;
 //Tri_Mesh *mesh;
 
 //xform xf;
@@ -218,10 +219,10 @@ namespace OpenMesh_EX {
 
 		}
 #pragma endregion
-private: System::Void hkoglPanelControl1_Load(System::Object^  sender, System::EventArgs^  e)
-{
-	   //glfwInit();
-	    GLenum err = glewInit();
+	private: System::Void hkoglPanelControl1_Load(System::Object^  sender, System::EventArgs^  e)
+	{
+		//glfwInit();
+		GLenum err = glewInit();
 		if (GLEW_OK != err)
 		{
 			std::cout << "GLEW is not initialized!\n";
@@ -240,7 +241,7 @@ private: System::Void hkoglPanelControl1_Load(System::Object^  sender, System::E
 		drawModelShader.Init();
 		pickingShader.Init();
 		pickingTexture.Init(windowWidth, windowHeight);
-		
+
 		drawPickingFaceShader.Init();
 		//drawPointShader.Init();
 		//glGenBuffers(1, &vboPoint);
@@ -248,7 +249,7 @@ private: System::Void hkoglPanelControl1_Load(System::Object^  sender, System::E
 		int image_width;
 		int image_height;
 		int imgcor;
-		
+
 		stbi_set_flip_vertically_on_load(true);
 		unsigned char* bytes = stbi_load("Right_Tex.png", &image_width, &image_height, &imgcor, 0);
 		glGenTextures(1, &id);
@@ -265,501 +266,575 @@ private: System::Void hkoglPanelControl1_Load(System::Object^  sender, System::E
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
 		stbi_image_free(bytes);
 		glBindTexture(GL_TEXTURE_2D, 0);
-				
-}
-//畫
-private: System::Void hkoglPanelControl1_Paint(System::Object^  sender, System::Windows::Forms::PaintEventArgs^  e)
-{
-	
-	//glEnable(GL_COLOR_MATERIAL);
-	//glClearColor(1.0, 1.0, 1.0, 1.0);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//point center;
-	//center[0] = 0.0;
-	//center[1] = 0.0;
-	//center[2] = 0.0;
-	//camera.setupGL(xf * center, 1.0);
-	aspect = windowWidth * 1.0f / windowHeight;
-	//std::cout << aspect << std::endl;
-	glm::mat4 mvMat = meshWindowCam.GetViewMatrix()*meshWindowCam.GetModelMatrix();
-	glm::mat4 pMat = meshWindowCam.GetProjectionMatrix(aspect);
+		bytes = stbi_load("123.jpg", &image_width, &image_height, &imgcor, 0);
+		glGenTextures(1, &id2);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, id2);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+		glGenerateMipmap(GL_TEXTURE_2D);
+		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	// write faceID+1 to framebuffer
-	pickingTexture.Enable();
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+		stbi_image_free(bytes);
+		glBindTexture(GL_TEXTURE_2D, 0);
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	pickingShader.Enable();
-	pickingShader.SetMVMat(value_ptr(mvMat));
-	pickingShader.SetPMat(value_ptr(pMat));
-
-	if (render_tex == false)
-		model.Render();
-
-	pickingShader.Disable();
-	pickingTexture.Disable();
-	
-
-	// draw model
-	glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	drawModelShader.Enable();
-	glm::mat3 normalMat = glm::transpose(glm::inverse(glm::mat3(mvMat)));
-
-	glm::mat3 RotateMat = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f+rotation), glm::vec3(0.0, 0.0, 1.0));
-	glm::mat3 ScaleMat = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f+scal, 1.0f + scal, 1.0f + scal));
-	glm::mat3 TranslateMat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f+ translat , 0.0f, 0.0f));
-	//drawModelShader.SetWireColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-	drawModelShader.SetFaceColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	//drawModelShader.UseLighting(true);
-	drawModelShader.DrawTexCoord(false);
-	drawModelShader.DrawTexture(false);
-		
-	//drawModelShader.DrawWireframe(true);
-	drawModelShader.SetNormalMat(normalMat);
-	drawModelShader.SetMVMat(mvMat);
-	drawModelShader.SetPMat(pMat);	
-	if (render_tex == false )
-		model.Render();
-	 drawModelShader.Disable();
-	
-
-	if (selectionMode == 1 || selectionMode == 2) {
-		drawPickingFaceShader.Enable();
-		drawPickingFaceShader.SetMVMat(value_ptr(mvMat));
-		drawPickingFaceShader.SetPMat(value_ptr(pMat));
-		drawPickingFaceShader.SetTex();
-		if (render_tex == false)
-			model.RenderSelectedFace();
-		drawPickingFaceShader.Disable();
 	}
-	if (light == false)
+			 //畫
+	private: System::Void hkoglPanelControl1_Paint(System::Object^  sender, System::Windows::Forms::PaintEventArgs^  e)
 	{
+
+		//glEnable(GL_COLOR_MATERIAL);
+		//glClearColor(1.0, 1.0, 1.0, 1.0);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		//point center;
+		//center[0] = 0.0;
+		//center[1] = 0.0;
+		//center[2] = 0.0;
+		//camera.setupGL(xf * center, 1.0);
+		aspect = windowWidth * 1.0f / windowHeight;
+		//std::cout << aspect << std::endl;
+		glm::mat4 mvMat = meshWindowCam.GetViewMatrix()*meshWindowCam.GetModelMatrix();
+		glm::mat4 pMat = meshWindowCam.GetProjectionMatrix(aspect);
+
+
+		// write faceID+1 to framebuffer
+		pickingTexture.Enable();
+
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		pickingShader.Enable();
+		pickingShader.SetMVMat(value_ptr(mvMat));
+		pickingShader.SetPMat(value_ptr(pMat));
+
+		if (render_tex == false)
+			model.Render();
+
+		pickingShader.Disable();
+		pickingTexture.Disable();
+
+
+		// draw model
+		glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		drawModelShader.Enable();
 		glm::mat3 normalMat = glm::transpose(glm::inverse(glm::mat3(mvMat)));
 
 		glm::mat3 RotateMat = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f + rotation), glm::vec3(0.0, 0.0, 1.0));
 		glm::mat3 ScaleMat = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f + scal, 1.0f + scal, 1.0f + scal));
 		glm::mat3 TranslateMat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f + translat, 0.0f, 0.0f));
+		//drawModelShader.SetWireColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 		drawModelShader.SetFaceColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		drawModelShader.UseLighting(true);
+		drawModelShader.DrawTexCoord(false);
+		drawModelShader.DrawTexture(false);
 
-		drawModelShader.DrawTexture(true);
-		//drawModelShader.UseLighting(true);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, id);
-		if (scaling == true)
-			drawModelShader.SetUVRotMat(ScaleMat);
-		else if (rotating == true)
-			drawModelShader.SetUVRotMat(RotateMat);
-		else if (translating == true)
-			drawModelShader.SetUVRotMat(TranslateMat);
-
-
+		//drawModelShader.DrawWireframe(true);
 		drawModelShader.SetNormalMat(normalMat);
 		drawModelShader.SetMVMat(mvMat);
 		drawModelShader.SetPMat(pMat);
 		if (render_tex == false)
-			model.Render_mesh2();
-
+			model.Render();
 		drawModelShader.Disable();
-	}
-	if (render_tex ==true)
-	{
-		drawModelShader.Enable();
-		glm::mat3 normalMat = glm::transpose(glm::inverse(glm::mat3(mvMat)));
 
-		glm::mat3 RotateMat = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f + rotation), glm::vec3(0.0, 0.0, 1.0));
-		glm::mat3 ScaleMat = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f + scal, 1.0f + scal, 1.0f + scal));
-		glm::mat3 TranslateMat = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f + translat, 0.0f, 0.0f));
-		drawModelShader.SetFaceColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
-		drawModelShader.DrawTexCoord(true);
-		drawModelShader.DrawTexture(true);
-		//drawModelShader.UseLighting(true);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, id);
-		if (scaling == true)
-			drawModelShader.SetUVRotMat(ScaleMat);
-		else if (rotating == true)
-			drawModelShader.SetUVRotMat(RotateMat);
-		else if(translating==true)
-			drawModelShader.SetUVRotMat(TranslateMat);
-
-		drawModelShader.SetNormalMat(normalMat);
-		drawModelShader.SetMVMat(mvMat);
-		drawModelShader.SetPMat(pMat);
-		model.Render_TexCoord();
-		model.Render_TexCoord2();
-		drawModelShader.Disable();
-	}
-	/*if (selectionMode == 3)
-	{
-		if (updateFlag)
+		if (selectionMode == 1 || selectionMode == 2) {
+			drawPickingFaceShader.Enable();
+			drawPickingFaceShader.SetMVMat(value_ptr(mvMat));
+			drawPickingFaceShader.SetPMat(value_ptr(pMat));
+			drawPickingFaceShader.SetTex();
+			if (render_tex == false)
+				model.RenderSelectedFace();
+			drawPickingFaceShader.Disable();
+		}
+		if (light == false)
 		{
-			float depthValue = 0;
-			int windowX = currentMouseX;
-			int windowY = windowHeight - currentMouseY;
-			glReadPixels(windowX, windowY, 2, 1.5, GL_DEPTH_COMPONENT, GL_FLOAT, &depthValue);
+			drawModelShader.Enable();
+			glm::mat3 normalMat = glm::transpose(glm::inverse(glm::mat3(mvMat)));
 
-			GLint _viewport[4];
-			glGetIntegerv(GL_VIEWPORT, _viewport);
-			glm::vec4 viewport(_viewport[0], _viewport[1], _viewport[2], _viewport[3]);
-			glm::vec3 windowPos(windowX, windowY, depthValue);
-			glm::vec3 wp = glm::unProject(windowPos, mvMat, pMat, viewport);
-			model.FindClosestPoint(currentFaceID - 1, wp, worldPos);
+			glm::mat3 RotateMat = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f + rotation), glm::vec3(0.0, 0.0, 1.0));
+			glm::mat3 ScaleMat = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f + scal, 1.0f + scal, 1.0f + scal));
+			glm::mat3 TranslateMat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f + translat, 0.0f, 0.0f));
+			drawModelShader.SetFaceColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-			updateFlag = false;
+			drawModelShader.DrawTexture(true);
+			drawModelShader.UseLighting(true);
+			glActiveTexture(GL_TEXTURE0);
+			/*if (tex_id == 0)
+			{
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, id);
+			}
+			else if (tex_id == 1)
+			{
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, id2);
+			}*/
+			if (scaling == true)
+				drawModelShader.SetUVRotMat(ScaleMat);
+			else if (rotating == true)
+				drawModelShader.SetUVRotMat(RotateMat);
+			else if (translating == true)
+				drawModelShader.SetUVRotMat(TranslateMat);
+
+
+			drawModelShader.SetNormalMat(normalMat);
+			drawModelShader.SetMVMat(mvMat);
+			drawModelShader.SetPMat(pMat);
+
+			if (render_tex == false)
+			{
+				for (int i = 0; i < model.model.mesh_tex.size(); i++)
+				{
+					if (i % 2 == 0)
+					{
+						glActiveTexture(GL_TEXTURE0);
+						glBindTexture(GL_TEXTURE_2D, id);
+						model.Render_mesh2(i);
+					}
+					else if (i % 2 == 1) {
+						glActiveTexture(GL_TEXTURE0);
+						glBindTexture(GL_TEXTURE_2D, id2);
+						model.Render_mesh2(i);
+					}
+				}
+			}
+			drawModelShader.Disable();
+		}
+		if (render_tex == true)
+		{
+			drawModelShader.Enable();
+			glm::mat3 normalMat = glm::transpose(glm::inverse(glm::mat3(mvMat)));
+
+			glm::mat3 RotateMat = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f + rotation), glm::vec3(0.0, 0.0, 1.0));
+			glm::mat3 ScaleMat = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f + scal, 1.0f + scal, 1.0f + scal));
+			glm::mat3 TranslateMat = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f + translat, 0.0f, 0.0f));
+			drawModelShader.SetFaceColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+			drawModelShader.DrawTexCoord(true);
+			drawModelShader.DrawTexture(true);
+			//drawModelShader.UseLighting(true);
+			glActiveTexture(GL_TEXTURE0);
+			/*if (tex_id == 0)
+			{
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, id);
+			}
+			else if (tex_id == 1)
+			{
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, id2);
+			}*/
+			if (scaling == true)
+				drawModelShader.SetUVRotMat(ScaleMat);
+			else if (rotating == true)
+				drawModelShader.SetUVRotMat(RotateMat);
+			else if (translating == true)
+				drawModelShader.SetUVRotMat(TranslateMat);
+
+			drawModelShader.SetNormalMat(normalMat);
+			drawModelShader.SetMVMat(mvMat);
+			drawModelShader.SetPMat(pMat);
+			model.Render_TexCoord();
+			model.Render_TexCoord2();
+			drawModelShader.Disable();
+		}
+		/*if (selectionMode == 3)
+		{
+			if (updateFlag)
+			{
+				float depthValue = 0;
+				int windowX = currentMouseX;
+				int windowY = windowHeight - currentMouseY;
+				glReadPixels(windowX, windowY, 2, 1.5, GL_DEPTH_COMPONENT, GL_FLOAT, &depthValue);
+
+				GLint _viewport[4];
+				glGetIntegerv(GL_VIEWPORT, _viewport);
+				glm::vec4 viewport(_viewport[0], _viewport[1], _viewport[2], _viewport[3]);
+				glm::vec3 windowPos(windowX, windowY, depthValue);
+				glm::vec3 wp = glm::unProject(windowPos, mvMat, pMat, viewport);
+				model.FindClosestPoint(currentFaceID - 1, wp, worldPos);
+
+				updateFlag = false;
+				//hkoglPanelControl1->Invalidate();
+			}*/
+			/*
+				Using OpenGL 1.1 to draw point
+			*/
+			/*glPushMatrix();
+			glPushAttrib(GL_POINT_BIT);
+				glMatrixMode(GL_PROJECTION);
+				glLoadIdentity();
+				glMultMatrixf(glm::value_ptr(pMat));
+
+				glMatrixMode(GL_MODELVIEW);
+				glLoadIdentity();
+				glMultMatrixf(glm::value_ptr(mvMat));
+
+				glPointSize(15.0f);
+				glColor3f(1.0, 0.0, 1.0);
+				glBegin(GL_POINTS);
+				glVertex3fv(glm::value_ptr(worldPos));
+				glEnd();
+			glPopAttrib();
+			glPopMatrix();*/
+
+
+			/*glBindBuffer(GL_ARRAY_BUFFER, vboPoint);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3), glm::value_ptr(worldPos), GL_STATIC_DRAW);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+			glEnableVertexAttribArray(0);
+
+			glm::vec4 pointColor(1.0, 0.0, 1.0, 1.0);
+			drawPointShader.Enable();
+			drawPointShader.SetMVMat(mvMat);
+			drawPointShader.SetPMat(pMat);
+			drawPointShader.SetPointColor(pointColor);
+			drawPointShader.SetPointSize(15.0);
+
+			glDrawArrays(GL_POINTS, 0, 1);
+
+			drawPointShader.Disable();
+
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			//hkoglPanelControl1->Invalidate();
 		}*/
-		/*
-			Using OpenGL 1.1 to draw point
-		*/
+		//glUseProgram(0);
 		/*glPushMatrix();
-		glPushAttrib(GL_POINT_BIT);
-			glMatrixMode(GL_PROJECTION);
-			glLoadIdentity();
-			glMultMatrixf(glm::value_ptr(pMat));
-
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
-			glMultMatrixf(glm::value_ptr(mvMat));
-
-			glPointSize(15.0f);
-			glColor3f(1.0, 0.0, 1.0);
-			glBegin(GL_POINTS);
-			glVertex3fv(glm::value_ptr(worldPos));
-			glEnd();
-		glPopAttrib();
+		glMatrixMode(GL_MODELVIEW);
+		glMultMatrixd((double *)xf);
+		if (mesh != NULL)
+			mesh->Render_SolidWireframe();
 		glPopMatrix();*/
-
-
-		/*glBindBuffer(GL_ARRAY_BUFFER, vboPoint);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3), glm::value_ptr(worldPos), GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(0);
-
-		glm::vec4 pointColor(1.0, 0.0, 1.0, 1.0);
-		drawPointShader.Enable();
-		drawPointShader.SetMVMat(mvMat);
-		drawPointShader.SetPMat(pMat);
-		drawPointShader.SetPointColor(pointColor);
-		drawPointShader.SetPointSize(15.0);
-
-		glDrawArrays(GL_POINTS, 0, 1);
-
-		drawPointShader.Disable();
-
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		//hkoglPanelControl1->Invalidate();
-	}*/
-	//glUseProgram(0);
-	/*glPushMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glMultMatrixd((double *)xf);
-	if (mesh != NULL)
-		mesh->Render_SolidWireframe();
-	glPopMatrix();*/
-}
-//滑鼠按下去
-private: System::Void hkoglPanelControl1_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e)
-{
-	if (e->Button == System::Windows::Forms::MouseButtons::Right ||
-		e->Button == System::Windows::Forms::MouseButtons::Middle)
+	}
+			 //滑鼠按下去
+	private: System::Void hkoglPanelControl1_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e)
 	{
-		SelectionHandler(e->X, e->Y);
-		//std::cout << "x="<< e->X<<"  y="<< e->Y << std::endl;
-		//std::cout << "MouseButtons_Right" << std::endl;
-		//hkoglPanelControl1->Invalidate();
-		//meshWindowCam.mousePressEvent( 3, e->X, e->Y);
-		/*point center;
-		Mouse_State = Mouse::NONE;
-		center[0] = 0.0;
-		center[1] = 0.0;
-		center[2] = 0.0;
-		camera.mouse(e->X, e->Y, Mouse_State,
-			xf * center,
-			1.0, xf);*/
-	}
-	else if (e->Button == System::Windows::Forms::MouseButtons::Left )
-	{
-		meshWindowCam.mouseEvents(0, 1, e->X, e->Y);
-		//meshWindowCam.mouseMoveEvent(e->X, e->Y);
-		//SelectionHandler(e->X, e->Y);
-		//std::cout << "x=" << e->X << "  y=" << e->Y << std::endl;
-		//hkoglPanelControl1->Invalidate();
-		//std::cout << "MouseButtons_Right" << std::endl;
-		//hkoglPanelControl1->Invalidate();
-		//meshWindowCam.mousePressEvent( 3, e->X, e->Y);
-		/*point center;
-		Mouse_State = Mouse::NONE;
-		center[0] = 0.0;
-		center[1] = 0.0;
-		center[2] = 0.0;
-		camera.mouse(e->X, e->Y, Mouse_State,
-			xf * center,
-			1.0, xf);*/
-	}
-}
-//滑鼠轉動
-private: System::Void hkoglPanelControl1_MouseMove(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e)
-{
-	if (e->Button == System::Windows::Forms::MouseButtons::Left)
-	{
-		//meshWindowCam.mouseEvents(0, 1, e->X, e->Y);
-		meshWindowCam.mouseMoveEvent(e->X, e->Y);
-		/*point center;
-		Mouse_State = Mouse::ROTATE;
-		center[0] = 0.0;
-		center[1] = 0.0;
-		center[2] = 0.0;
-		camera.mouse(e->X, e->Y, Mouse_State,
-			xf * center,
-			1.0, xf);*/
-		hkoglPanelControl1->Invalidate();
-	}
-
-	if (e->Button == System::Windows::Forms::MouseButtons::Right)
-	{
-		SelectionHandler(e->X, e->Y);
-		/*point center;
-		Mouse_State = Mouse::MOVEXY;
-		center[0] = 0.0;
-		center[1] = 0.0;
-		center[2] = 0.0;
-		camera.mouse(e->X, e->Y, Mouse_State,
-			xf * center,
-			1.0, xf);*/
-		hkoglPanelControl1->Invalidate();
-	}
-}
-//滑鼠滾輪
-private: System::Void hkoglPanelControl1_MouseWheel(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e)
-{
-	if (e->Delta < 0)
-	{
-		meshWindowCam.mouseEvents(3, 3, e->X, e->Y);
-		/*point center;
-		Mouse_State = Mouse::WHEELDOWN;
-		center[0] = 0.0;
-		center[1] = 0.0;
-		center[2] = 0.0;
-		camera.mouse(e->X, e->Y, Mouse_State,
-			xf * center,
-			1.0, xf);*/
-		hkoglPanelControl1->Invalidate();
-	}
-	else
-	{
-		meshWindowCam.mouseEvents(4, 4, e->X, e->Y);
-		/*point center;
-		Mouse_State = Mouse::WHEELUP;
-		center[0] = 0.0;
-		center[1] = 0.0;
-		center[2] = 0.0;
-		camera.mouse(e->X, e->Y, Mouse_State,
-			xf * center,
-			1.0, xf);*/
-		hkoglPanelControl1->Invalidate();
-	}
-}
-private: System::Void hkoglPanelControl1_KeyPress(System::Object^  sender, System::Windows::Forms::KeyPressEventArgs^ e)
-{
-	meshWindowCam.keyEvents(e->KeyChar);
-	if (e->KeyChar == 'w' || e->KeyChar == 'W') {
-		meshWindowCam.keyEvents(e->KeyChar);
-		
-		hkoglPanelControl1->Invalidate();
-		//e.Handled = true;
-	}
-	else if(e->KeyChar == 'a' || e->KeyChar == 'A') {
-		meshWindowCam.keyEvents(e->KeyChar);
-
-		hkoglPanelControl1->Invalidate();
-		//e.Handled = true;
-	}
-	else if (e->KeyChar == 's' || e->KeyChar == 'S') {
-		meshWindowCam.keyEvents(e->KeyChar);
-
-		hkoglPanelControl1->Invalidate();
-		//e.Handled = true;
-	}
-	else if (e->KeyChar == 'd' || e->KeyChar == 'D') {
-		meshWindowCam.keyEvents(e->KeyChar);
-
-		hkoglPanelControl1->Invalidate();
-		//e.Handled = true;
-	}
-	else if (e->KeyChar == '-' ) {
-		meshWindowCam.keyEvents(e->KeyChar);
-
-		hkoglPanelControl1->Invalidate();
-		//e.Handled = true;
-	}
-	else if (e->KeyChar == '+') {
-		meshWindowCam.keyEvents(e->KeyChar);
-
-		hkoglPanelControl1->Invalidate();
-		//e.Handled = true;
-	}
-	else if (e->KeyChar == '1') {
-		selectionMode = 1;
-		//std::cout << "selectionMode=" << selectionMode << std::endl;
-		hkoglPanelControl1->Invalidate();
-		//e.Handled = true;
-	}
-	else if (e->KeyChar == '2') {
-		selectionMode = 2;
-		//std::cout << "selectionMode=" << selectionMode << std::endl;
-		hkoglPanelControl1->Invalidate();
-		//e.Handled = true;
-	}
-	else if (e->KeyChar == '3') {
-		selectionMode = 3;
-		//std::cout << "selectionMode=" << selectionMode << std::endl;
-		hkoglPanelControl1->Invalidate();
-		//e.Handled = true;
-	}
-	else if (e->KeyChar == '4') {
-		if (faceID != 0&& selectionMode == 1)
+		if (e->Button == System::Windows::Forms::MouseButtons::Right ||
+			e->Button == System::Windows::Forms::MouseButtons::Middle)
 		{
-			model.AddSelectedFacefinished();
-			light = false;
-			//std::cout << "faceID" << faceID << std::endl;					
+			SelectionHandler(e->X, e->Y);
+			//std::cout << "x="<< e->X<<"  y="<< e->Y << std::endl;
+			//std::cout << "MouseButtons_Right" << std::endl;
+			//hkoglPanelControl1->Invalidate();
+			//meshWindowCam.mousePressEvent( 3, e->X, e->Y);
+			/*point center;
+			Mouse_State = Mouse::NONE;
+			center[0] = 0.0;
+			center[1] = 0.0;
+			center[2] = 0.0;
+			camera.mouse(e->X, e->Y, Mouse_State,
+				xf * center,
+				1.0, xf);*/
 		}
-		//std::cout << "selectionMode=" << selectionMode << std::endl;
-		hkoglPanelControl1->Invalidate();
-		//e.Handled = true;
-	}
-	else if (e->KeyChar == '5') {
-
-		render_tex = true;
-		
-		hkoglPanelControl1->Invalidate();
-	}
-	else if (e->KeyChar == 'q') {
-
-		rotation += 5.0f;
-		scaling = false;
-		translating = false;
-		rotating = true;
-		hkoglPanelControl1->Invalidate();
-	}
-	else if (e->KeyChar == 'e') {
-
-		scal += 1.0f;
-		scaling = true;
-		rotating = false;
-		translating = false;
-		hkoglPanelControl1->Invalidate();
-	}
-	else if (e->KeyChar == 'r') {
-
-		scal -= 1.0f;
-		scaling = true;
-		rotating = false;
-		translating = false;
-		hkoglPanelControl1->Invalidate();
-	}
-	else if (e->KeyChar == 't') {
-
-		translat += 0.1f;
-		scaling = false;
-		rotating = false;
-		translating = true;
-		hkoglPanelControl1->Invalidate();
-		std::cout << translat <<std::endl;
-	}
-	else if (e->KeyChar == 'y') {
-
-	translat -= 0.1f;
-	scaling = false;
-	rotating = false;
-	translating = true;
-	hkoglPanelControl1->Invalidate();
-	std::cout << translat << std::endl;
-	}
-	else if (e->KeyChar == 'o') {
-
-		model.increase_face();
-		hkoglPanelControl1->Invalidate();
-	}
-	else if (e->KeyChar == 'i') {
-
-		model.decrease_face();
-		hkoglPanelControl1->Invalidate();
-	}
-	else if (e->KeyChar == '6') {
-
-	render_tex=false;
-	hkoglPanelControl1->Invalidate();
-	}
-}
-//按下load model選單
-private: System::Void loadModelToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
-{
-	openModelDialog->Filter = "Model(*.obj)|*obj";
-	openModelDialog->Multiselect = false;
-	openModelDialog->ShowDialog();
-}
-//載入檔案
-private: System::Void openModelDialog_FileOk(System::Object^  sender, System::ComponentModel::CancelEventArgs^  e)
-{
-	std::string filename;
-	MarshalString(openModelDialog->FileName, filename);
-
-	//if (mesh != NULL)
-		//delete mesh;
-	//mesh = new Tri_Mesh;
-	if (model.Init(filename))
+		else if (e->Button == System::Windows::Forms::MouseButtons::Left)
 		{
-			std::cout << "Load Model"<<filename << std::endl;
+			meshWindowCam.mouseEvents(0, 1, e->X, e->Y);
+			//meshWindowCam.mouseMoveEvent(e->X, e->Y);
+			//SelectionHandler(e->X, e->Y);
+			//std::cout << "x=" << e->X << "  y=" << e->Y << std::endl;
+			//hkoglPanelControl1->Invalidate();
+			//std::cout << "MouseButtons_Right" << std::endl;
+			//hkoglPanelControl1->Invalidate();
+			//meshWindowCam.mousePressEvent( 3, e->X, e->Y);
+			/*point center;
+			Mouse_State = Mouse::NONE;
+			center[0] = 0.0;
+			center[1] = 0.0;
+			center[2] = 0.0;
+			camera.mouse(e->X, e->Y, Mouse_State,
+				xf * center,
+				1.0, xf);*/
+		}
+	}
+			 //滑鼠轉動
+	private: System::Void hkoglPanelControl1_MouseMove(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e)
+	{
+		if (e->Button == System::Windows::Forms::MouseButtons::Left)
+		{
+			//meshWindowCam.mouseEvents(0, 1, e->X, e->Y);
+			meshWindowCam.mouseMoveEvent(e->X, e->Y);
+			/*point center;
+			Mouse_State = Mouse::ROTATE;
+			center[0] = 0.0;
+			center[1] = 0.0;
+			center[2] = 0.0;
+			camera.mouse(e->X, e->Y, Mouse_State,
+				xf * center,
+				1.0, xf);*/
+			hkoglPanelControl1->Invalidate();
+		}
+
+		if (e->Button == System::Windows::Forms::MouseButtons::Right)
+		{
+			SelectionHandler(e->X, e->Y);
+			/*point center;
+			Mouse_State = Mouse::MOVEXY;
+			center[0] = 0.0;
+			center[1] = 0.0;
+			center[2] = 0.0;
+			camera.mouse(e->X, e->Y, Mouse_State,
+				xf * center,
+				1.0, xf);*/
+			hkoglPanelControl1->Invalidate();
+		}
+	}
+			 //滑鼠滾輪
+	private: System::Void hkoglPanelControl1_MouseWheel(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e)
+	{
+		if (e->Delta < 0)
+		{
+			meshWindowCam.mouseEvents(3, 3, e->X, e->Y);
+			/*point center;
+			Mouse_State = Mouse::WHEELDOWN;
+			center[0] = 0.0;
+			center[1] = 0.0;
+			center[2] = 0.0;
+			camera.mouse(e->X, e->Y, Mouse_State,
+				xf * center,
+				1.0, xf);*/
+			hkoglPanelControl1->Invalidate();
+		}
+		else
+		{
+			meshWindowCam.mouseEvents(4, 4, e->X, e->Y);
+			/*point center;
+			Mouse_State = Mouse::WHEELUP;
+			center[0] = 0.0;
+			center[1] = 0.0;
+			center[2] = 0.0;
+			camera.mouse(e->X, e->Y, Mouse_State,
+				xf * center,
+				1.0, xf);*/
+			hkoglPanelControl1->Invalidate();
+		}
+	}
+	private: System::Void hkoglPanelControl1_KeyPress(System::Object^  sender, System::Windows::Forms::KeyPressEventArgs^ e)
+	{
+		meshWindowCam.keyEvents(e->KeyChar);
+		if (e->KeyChar == 'w' || e->KeyChar == 'W') {
+			meshWindowCam.keyEvents(e->KeyChar);
+
+			hkoglPanelControl1->Invalidate();
+			//e.Handled = true;
+		}
+		else if (e->KeyChar == 'a' || e->KeyChar == 'A') {
+			meshWindowCam.keyEvents(e->KeyChar);
+
+			hkoglPanelControl1->Invalidate();
+			//e.Handled = true;
+		}
+		else if (e->KeyChar == 's' || e->KeyChar == 'S') {
+			meshWindowCam.keyEvents(e->KeyChar);
+
+			hkoglPanelControl1->Invalidate();
+			//e.Handled = true;
+		}
+		else if (e->KeyChar == 'd' || e->KeyChar == 'D') {
+			meshWindowCam.keyEvents(e->KeyChar);
+
+			hkoglPanelControl1->Invalidate();
+			//e.Handled = true;
+		}
+		else if (e->KeyChar == '-') {
+			meshWindowCam.keyEvents(e->KeyChar);
+
+			hkoglPanelControl1->Invalidate();
+			//e.Handled = true;
+		}
+		else if (e->KeyChar == '+') {
+			meshWindowCam.keyEvents(e->KeyChar);
+
+			hkoglPanelControl1->Invalidate();
+			//e.Handled = true;
+		}
+		else if (e->KeyChar == '1') {
+			selectionMode = 1;
+			//std::cout << "selectionMode=" << selectionMode << std::endl;
+			hkoglPanelControl1->Invalidate();
+			//e.Handled = true;
+		}
+		else if (e->KeyChar == '2') {
+			selectionMode = 2;
+			//std::cout << "selectionMode=" << selectionMode << std::endl;
+			hkoglPanelControl1->Invalidate();
+			//e.Handled = true;
+		}
+		else if (e->KeyChar == '3') {
+			selectionMode = 3;
+			//std::cout << "selectionMode=" << selectionMode << std::endl;
+			hkoglPanelControl1->Invalidate();
+			//e.Handled = true;
+		}
+		else if (e->KeyChar == '4') {
+			if (faceID != 0 && selectionMode == 1)
+			{
+				model.AddSelectedFacefinished();
+				light = false;
+				//std::cout << "faceID" << faceID << std::endl;					
+			}
+			//std::cout << "selectionMode=" << selectionMode << std::endl;
+			hkoglPanelControl1->Invalidate();
+			//e.Handled = true;
+		}
+		else if (e->KeyChar == '5') {
+
+			render_tex = true;
+
+			hkoglPanelControl1->Invalidate();
+		}
+		else if (e->KeyChar == 'q') {
+
+			rotation += 5.0f;
+			scaling = false;
+			translating = false;
+			rotating = true;
+			hkoglPanelControl1->Invalidate();
+		}
+		else if (e->KeyChar == 'e') {
+
+			scal += 1.0f;
+			scaling = true;
+			rotating = false;
+			translating = false;
+			hkoglPanelControl1->Invalidate();
+		}
+		else if (e->KeyChar == 'r') {
+
+			scal -= 1.0f;
+			scaling = true;
+			rotating = false;
+			translating = false;
+			hkoglPanelControl1->Invalidate();
+		}
+		else if (e->KeyChar == 't') {
+
+			translat += 0.1f;
+			scaling = false;
+			rotating = false;
+			translating = true;
+			hkoglPanelControl1->Invalidate();
+			std::cout << translat << std::endl;
+		}
+		else if (e->KeyChar == 'y') {
+
+			translat -= 0.1f;
+			scaling = false;
+			rotating = false;
+			translating = true;
+			hkoglPanelControl1->Invalidate();
+			std::cout << translat << std::endl;
+		}
+		//放大
+		else if (e->KeyChar == 'o') {
+
+			model.increase_face();
+			hkoglPanelControl1->Invalidate();
+		}
+		//縮小
+		else if (e->KeyChar == 'i') {
+
+			model.decrease_face();
+			hkoglPanelControl1->Invalidate();
+		}
+
+		else if (e->KeyChar == '6') {
+
+			render_tex = false;
+			hkoglPanelControl1->Invalidate();
+		}
+		else if (e->KeyChar == '0') {
+
+			//MyMesh now=model.record_mesh(0);
+			model.create_mesh();
+			std::cout << "create mesh" << std::endl;
+			hkoglPanelControl1->Invalidate();
+		}
+		//換貼圖
+		else if (e->KeyChar == '9') {
+
+			if (tex_id == 0)
+			{
+				tex_id = 1;
+			}
+			else if (tex_id == 1)
+			{
+				tex_id = 0;
+			}
+			std::cout << "create mesh" << std::endl;
+			hkoglPanelControl1->Invalidate();
+		}
+
+	}
+			 //按下load model選單
+	private: System::Void loadModelToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
+	{
+		openModelDialog->Filter = "Model(*.obj)|*obj";
+		openModelDialog->Multiselect = false;
+		openModelDialog->ShowDialog();
+	}
+			 //載入檔案
+	private: System::Void openModelDialog_FileOk(System::Object^  sender, System::ComponentModel::CancelEventArgs^  e)
+	{
+		std::string filename;
+		MarshalString(openModelDialog->FileName, filename);
+
+		//if (mesh != NULL)
+			//delete mesh;
+		//mesh = new Tri_Mesh;
+		if (model.Init(filename))
+		{
+			std::cout << "Load Model" << filename << std::endl;
 		}
 		else
 		{
 			//puts("Load Model Failed");
 			std::cout << "Load Model Failed" << std::endl;
 		}
-	//if (ReadFile(filename, mesh))
-		//std::cout << filename << std::endl;
+		//if (ReadFile(filename, mesh))
+			//std::cout << filename << std::endl;
 
-	hkoglPanelControl1->Invalidate();
-}
-//按下save model選單
-private: System::Void saveModelToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
-{
-	saveModelDialog->Filter = "Model(*.obj)|*obj";
-	saveModelDialog->ShowDialog();
-}
-//輸出檔案
-private: System::Void saveModelDialog_FileOk(System::Object^  sender, System::ComponentModel::CancelEventArgs^  e)
-{
-	std::string filename;
-	MarshalString(saveModelDialog->FileName, filename);
-	model.End(filename);
-	//if (SaveFile(filename, mesh))
-		//std::cout << filename << std::endl;
-	hkoglPanelControl1->Invalidate();
-}
-private: System::Void SelectionHandler(unsigned int x, unsigned int y)
+		hkoglPanelControl1->Invalidate();
+	}
+			 //按下save model選單
+	private: System::Void saveModelToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
 	{
-	faceID = pickingTexture.ReadTexture(x, windowHeight - y - 1);
-	//std::cout << "x=" << x << "  y=" << y << std::endl;
-	//std::cout << "faceID="<<faceID << std::endl;
-	//if (faceID != 0)
-		//{
-		//	currentFaceID = faceID;
-		//}
-	//std::cout << "selectionMode=" << selectionMode << std::endl;
-		//if (selectionMode == ADD_FACE)
-	    if (selectionMode == 1)
+		saveModelDialog->Filter = "Model(*.obj)|*obj";
+		saveModelDialog->ShowDialog();
+	}
+			 //輸出檔案
+	private: System::Void saveModelDialog_FileOk(System::Object^  sender, System::ComponentModel::CancelEventArgs^  e)
+	{
+		std::string filename;
+		MarshalString(saveModelDialog->FileName, filename);
+		model.End(filename);
+		//if (SaveFile(filename, mesh))
+			//std::cout << filename << std::endl;
+		hkoglPanelControl1->Invalidate();
+	}
+	private: System::Void SelectionHandler(unsigned int x, unsigned int y)
+	{
+		faceID = pickingTexture.ReadTexture(x, windowHeight - y - 1);
+		//std::cout << "x=" << x << "  y=" << y << std::endl;
+		//std::cout << "faceID="<<faceID << std::endl;
+		//if (faceID != 0)
+			//{
+			//	currentFaceID = faceID;
+			//}
+		//std::cout << "selectionMode=" << selectionMode << std::endl;
+			//if (selectionMode == ADD_FACE)
+		if (selectionMode == 1)
 		{
 			if (faceID != 0)
 			{
-				model.AddSelectedFace(faceID -1);
+				model.AddSelectedFace(faceID - 1);
 				//std::cout << "AddSelectedFace_finish" << std::endl;
 			}
 			hkoglPanelControl1->Invalidate();
@@ -781,17 +856,17 @@ private: System::Void SelectionHandler(unsigned int x, unsigned int y)
 			hkoglPanelControl1->Invalidate();
 		}
 	}
-	
-private: System::Void MyForm_Resize(System::Object^  sender, System::EventArgs^  e) {
-	
-}
-private: System::Void hkoglPanelControl1_Resize(System::Object^  sender, System::EventArgs^  e) {
-	windowHeight = this->Size.Height - 60;
-	windowWidth = this->Size.Width;
-	glewInit();
-	pickingTexture.Init(windowWidth, windowHeight);
+
+	private: System::Void MyForm_Resize(System::Object^  sender, System::EventArgs^  e) {
+
+	}
+	private: System::Void hkoglPanelControl1_Resize(System::Object^  sender, System::EventArgs^  e) {
+		windowHeight = this->Size.Height - 60;
+		windowWidth = this->Size.Width;
+		glewInit();
+		pickingTexture.Init(windowWidth, windowHeight);
 
 	}
 
-};
+	};
 }

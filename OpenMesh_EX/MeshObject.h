@@ -33,9 +33,10 @@ public:
 	void GetModel(unsigned int faceID, std::vector<unsigned int> selectedFace);
 	MyMesh mesh;
 	MyMesh mesh2;
-	MyMesh mesh3;
+	MyMesh mesh_blank;
+	std::vector<MyMesh> mesh_tex;
 	// generate vertices
-	
+
 	GLuint vao;
 	GLuint ebo;
 	GLuint vboVertices, vboNormal;
@@ -47,9 +48,9 @@ public:
 private:
 
 	bool LoadModel(std::string fileName);
-	
+
 	//void caculateUV();
-	
+
 };
 
 class MeshObject
@@ -60,7 +61,7 @@ public:
 
 	bool Init(std::string fileName);
 	void Render();
-	void Render_mesh2();
+	void Render_mesh2(int);
 	void Render_TexCoord();
 	void Render_TexCoord2();
 	void RenderSelectedFace();
@@ -71,7 +72,7 @@ public:
 	void CaculateWeight();
 	void step3();
 	void step4();
-	float cotan(OpenMesh::Vec3f a,OpenMesh::Vec3f b);
+	float cotan(OpenMesh::Vec3f a, OpenMesh::Vec3f b);
 	float distance(OpenMesh::Vec3f a);
 	//float MeshObject::cotan(const VectorXf &a, const  VectorXf& b);
 	bool End(std::string fileName);
@@ -82,8 +83,14 @@ public:
 	void LoadToShader2();
 	void increase_face();
 	void decrease_face();
-private:
+
+	void create_mesh();
 	GLMesh model;
+
+	MyMesh record_mesh(int);
+
+private:
+
 	std::vector<unsigned int> selectedFace;
 	std::vector<OpenMesh::ArrayKernel::VertexHandle> selectedpoint;
 	std::vector<MyMesh::Point> point;
@@ -96,16 +103,16 @@ private:
 
 	//OpenMesh::VPropHandleT<MyMesh::Point> ppnew;
 	OpenMesh::VPropHandleT<MyMesh::Point> notinbound;//存非邊界vertex 的property
-	
+
 	OpenMesh::VPropHandleT<OpenMesh::ArrayKernel::VertexHandle> vertexId;//存新mesh的vertex 的property
 
-	
+
 	std::vector<MyMesh::VertexHandle> v_boundary;
 	OpenMesh::EPropHandleT<float> weight;//存weight
 
-	
 
-	int inner_point_num=0;//有幾個內部點
+
+	int inner_point_num = 0;//有幾個內部點
 	//int adjacent_point_num = 0;//內部點有幾個相鄰的點
 	OpenMesh::VPropHandleT<float> X;//
 	OpenMesh::VPropHandleT<float> Y;//
@@ -114,8 +121,23 @@ private:
 
 	OpenMesh::VPropHandleT< std::vector<MyMesh::VertexHandle> > adjacent_point_num_ID;//
 
-	
+
 	OpenMesh::VPropHandleT<OpenMesh::Vec2f> v_2d;//存map到的點位置
-	
+
+
+
+
+
+
+
+	std::vector<GLuint> mesh_vao;
+	std::vector<GLuint> mesh_texure;
+	std::vector<GLuint> mesh_vboVertices;
+	std::vector<GLuint> mesh_vboNormal;
+	std::vector<GLuint> mesh_ebo;
+	std::vector<GLuint> mesh_ebo_line;
+
+
+
 };
 
