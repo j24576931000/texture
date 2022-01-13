@@ -47,12 +47,11 @@ bool light = true;
 // vbo for drawing point
 GLuint vboPoint;
 float rotation = 0.0f, scal = 0.0f, translat = 0.0f;
-bool scaling = false, rotating = true, render_tex = false, translating = false;
-//GLuint TEXTURE;
-GLuint id, id2;
+bool render_tex = false;
+std::vector<GLuint> id;
 int tex_id = 0;
 //Tri_Mesh *mesh;
-
+bool edit_mode = false;
 //xform xf;
 //GLCamera camera;
 //float fov = 0.7f;
@@ -105,6 +104,17 @@ namespace OpenMesh_EX {
 	private: System::Windows::Forms::SaveFileDialog^  saveModelDialog;
 	private: System::Windows::Forms::ToolStripMenuItem^  saveModelToolStripMenuItem;
 	private: HKOGLPanel::HKOGLPanelControl^  hkoglPanelControl1;
+	private: System::Windows::Forms::Button^  button1;
+	private: System::Windows::Forms::OpenFileDialog^  openFileDialog1;
+	private: System::Windows::Forms::ColorDialog^  colorDialog1;
+	private: System::Windows::Forms::Panel^  panel1;
+
+	private: System::Windows::Forms::NumericUpDown^  numericUpDown1;
+	private: System::Windows::Forms::TextBox^  textBox1;
+
+
+	private: System::ComponentModel::IContainer^  components;
+
 
 
 
@@ -114,7 +124,7 @@ namespace OpenMesh_EX {
 		/// <summary>
 		/// 設計工具所需的變數。
 		/// </summary>
-		System::ComponentModel::Container ^components;
+
 
 #pragma region Windows Form Designer generated code
 		/// <summary>
@@ -132,7 +142,15 @@ namespace OpenMesh_EX {
 			this->openModelDialog = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->saveModelDialog = (gcnew System::Windows::Forms::SaveFileDialog());
 			this->hkoglPanelControl1 = (gcnew HKOGLPanel::HKOGLPanelControl());
+			this->button1 = (gcnew System::Windows::Forms::Button());
+			this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
+			this->colorDialog1 = (gcnew System::Windows::Forms::ColorDialog());
+			this->panel1 = (gcnew System::Windows::Forms::Panel());
+			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
+			this->numericUpDown1 = (gcnew System::Windows::Forms::NumericUpDown());
 			this->menuStrip1->SuspendLayout();
+			this->panel1->SuspendLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown1))->BeginInit();
 			this->SuspendLayout();
 			// 
 			// menuStrip1
@@ -201,11 +219,55 @@ namespace OpenMesh_EX {
 			this->hkoglPanelControl1->MouseWheel += gcnew System::Windows::Forms::MouseEventHandler(this, &MyForm::hkoglPanelControl1_MouseWheel);
 			this->hkoglPanelControl1->Resize += gcnew System::EventHandler(this, &MyForm::hkoglPanelControl1_Resize);
 			// 
+			// button1
+			// 
+			this->button1->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Right));
+			this->button1->ImageAlign = System::Drawing::ContentAlignment::TopRight;
+			this->button1->Location = System::Drawing::Point(725, 0);
+			this->button1->Name = L"button1";
+			this->button1->Size = System::Drawing::Size(75, 23);
+			this->button1->TabIndex = 3;
+			this->button1->Text = L"create texture";
+			this->button1->UseVisualStyleBackColor = true;
+			this->button1->Click += gcnew System::EventHandler(this, &MyForm::button1_Click);
+			// 
+			// openFileDialog1
+			// 
+			this->openFileDialog1->FileName = L"openFileDialog1";
+			this->openFileDialog1->FileOk += gcnew System::ComponentModel::CancelEventHandler(this, &MyForm::openFileDialog1_FileOk);
+			// 
+			// panel1
+			// 
+			this->panel1->Controls->Add(this->textBox1);
+			this->panel1->Controls->Add(this->numericUpDown1);
+			this->panel1->Dock = System::Windows::Forms::DockStyle::Right;
+			this->panel1->Location = System::Drawing::Point(600, 24);
+			this->panel1->Name = L"panel1";
+			this->panel1->Size = System::Drawing::Size(200, 600);
+			this->panel1->TabIndex = 4;
+			// 
+			// textBox1
+			// 
+			this->textBox1->Location = System::Drawing::Point(14, 41);
+			this->textBox1->Name = L"textBox1";
+			this->textBox1->Size = System::Drawing::Size(34, 22);
+			this->textBox1->TabIndex = 1;
+			// 
+			// numericUpDown1
+			// 
+			this->numericUpDown1->Location = System::Drawing::Point(68, 42);
+			this->numericUpDown1->Name = L"numericUpDown1";
+			this->numericUpDown1->Size = System::Drawing::Size(120, 22);
+			this->numericUpDown1->TabIndex = 0;
+			this->numericUpDown1->ValueChanged += gcnew System::EventHandler(this, &MyForm::numericUpDown1_ValueChanged);
+			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 12);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(800, 624);
+			this->Controls->Add(this->panel1);
+			this->Controls->Add(this->button1);
 			this->Controls->Add(this->hkoglPanelControl1);
 			this->Controls->Add(this->menuStrip1);
 			this->MainMenuStrip = this->menuStrip1;
@@ -214,6 +276,9 @@ namespace OpenMesh_EX {
 			this->Resize += gcnew System::EventHandler(this, &MyForm::MyForm_Resize);
 			this->menuStrip1->ResumeLayout(false);
 			this->menuStrip1->PerformLayout();
+			this->panel1->ResumeLayout(false);
+			this->panel1->PerformLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown1))->EndInit();
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -246,42 +311,42 @@ namespace OpenMesh_EX {
 		//drawPointShader.Init();
 		//glGenBuffers(1, &vboPoint);
 		//TEXTURE=pickingTexture.MY_TEX(windowWidth, windowHeight);
-		int image_width;
-		int image_height;
-		int imgcor;
+		//int image_width;
+		//int image_height;
+		//int imgcor;
 
-		stbi_set_flip_vertically_on_load(true);
-		unsigned char* bytes = stbi_load("Right_Tex.png", &image_width, &image_height, &imgcor, 0);
-		glGenTextures(1, &id);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, id);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		//stbi_set_flip_vertically_on_load(true);
+		//unsigned char* bytes = stbi_load("Right_Tex.png", &image_width, &image_height, &imgcor, 0);
+		//glGenTextures(1, &id);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, id);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		glGenerateMipmap(GL_TEXTURE_2D);
-		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		//glGenerateMipmap(GL_TEXTURE_2D);
+		////glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
-		stbi_image_free(bytes);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+		//stbi_image_free(bytes);
+		//glBindTexture(GL_TEXTURE_2D, 0);
 
-		bytes = stbi_load("123.jpg", &image_width, &image_height, &imgcor, 0);
-		glGenTextures(1, &id2);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, id2);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		//bytes = stbi_load("123.jpg", &image_width, &image_height, &imgcor, 0);
+		//glGenTextures(1, &id2);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, id2);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		glGenerateMipmap(GL_TEXTURE_2D);
-		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		//glGenerateMipmap(GL_TEXTURE_2D);
+		////glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
-		stbi_image_free(bytes);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+		//stbi_image_free(bytes);
+		//glBindTexture(GL_TEXTURE_2D, 0);
 
 	}
 			 //畫
@@ -327,9 +392,9 @@ namespace OpenMesh_EX {
 		drawModelShader.Enable();
 		glm::mat3 normalMat = glm::transpose(glm::inverse(glm::mat3(mvMat)));
 
-		glm::mat3 RotateMat = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f + rotation), glm::vec3(0.0, 0.0, 1.0));
-		glm::mat3 ScaleMat = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f + scal, 1.0f + scal, 1.0f + scal));
-		glm::mat3 TranslateMat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f + translat, 0.0f, 0.0f));
+		glm::mat4 RotateMat = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f + rotation), glm::vec3(0.0, 0.0, 1.0));
+		glm::mat4 ScaleMat = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f + scal, 1.0f + scal, 1.0f + scal));
+		glm::mat4 TranslateMat = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f + translat, 1.0f + translat, 1.0f + translat));
 		//drawModelShader.SetWireColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 		drawModelShader.SetFaceColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 		drawModelShader.UseLighting(true);
@@ -357,34 +422,12 @@ namespace OpenMesh_EX {
 		if (light == false)
 		{
 			drawModelShader.Enable();
-			glm::mat3 normalMat = glm::transpose(glm::inverse(glm::mat3(mvMat)));
-
-			glm::mat3 RotateMat = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f + rotation), glm::vec3(0.0, 0.0, 1.0));
-			glm::mat3 ScaleMat = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f + scal, 1.0f + scal, 1.0f + scal));
-			glm::mat3 TranslateMat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f + translat, 0.0f, 0.0f));
 			drawModelShader.SetFaceColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
 			drawModelShader.DrawTexture(true);
 			drawModelShader.UseLighting(true);
 			glActiveTexture(GL_TEXTURE0);
-			/*if (tex_id == 0)
-			{
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, id);
-			}
-			else if (tex_id == 1)
-			{
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, id2);
-			}*/
-			if (scaling == true)
-				drawModelShader.SetUVRotMat(ScaleMat);
-			else if (rotating == true)
-				drawModelShader.SetUVRotMat(RotateMat);
-			else if (translating == true)
-				drawModelShader.SetUVRotMat(TranslateMat);
-
-
+            drawModelShader.SetUVRotMat(ScaleMat*RotateMat*TranslateMat);
 			drawModelShader.SetNormalMat(normalMat);
 			drawModelShader.SetMVMat(mvMat);
 			drawModelShader.SetPMat(pMat);
@@ -393,17 +436,9 @@ namespace OpenMesh_EX {
 			{
 				for (int i = 0; i < model.model.mesh_tex.size(); i++)
 				{
-					if (i % 2 == 0)
-					{
 						glActiveTexture(GL_TEXTURE0);
-						glBindTexture(GL_TEXTURE_2D, id);
+						glBindTexture(GL_TEXTURE_2D, id[i]);
 						model.Render_mesh2(i);
-					}
-					else if (i % 2 == 1) {
-						glActiveTexture(GL_TEXTURE0);
-						glBindTexture(GL_TEXTURE_2D, id2);
-						model.Render_mesh2(i);
-					}
 				}
 			}
 			drawModelShader.Disable();
@@ -411,39 +446,23 @@ namespace OpenMesh_EX {
 		if (render_tex == true)
 		{
 			drawModelShader.Enable();
-			glm::mat3 normalMat = glm::transpose(glm::inverse(glm::mat3(mvMat)));
-
-			glm::mat3 RotateMat = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f + rotation), glm::vec3(0.0, 0.0, 1.0));
-			glm::mat3 ScaleMat = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f + scal, 1.0f + scal, 1.0f + scal));
-			glm::mat3 TranslateMat = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f + translat, 0.0f, 0.0f));
 			drawModelShader.SetFaceColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
 			drawModelShader.DrawTexCoord(true);
 			drawModelShader.DrawTexture(true);
 			//drawModelShader.UseLighting(true);
-			glActiveTexture(GL_TEXTURE0);
-			/*if (tex_id == 0)
-			{
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, id);
-			}
-			else if (tex_id == 1)
-			{
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, id2);
-			}*/
-			if (scaling == true)
-				drawModelShader.SetUVRotMat(ScaleMat);
-			else if (rotating == true)
-				drawModelShader.SetUVRotMat(RotateMat);
-			else if (translating == true)
-				drawModelShader.SetUVRotMat(TranslateMat);
+			drawModelShader.SetUVRotMat(ScaleMat*RotateMat*TranslateMat);
 
 			drawModelShader.SetNormalMat(normalMat);
 			drawModelShader.SetMVMat(mvMat);
 			drawModelShader.SetPMat(pMat);
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, id[model.mesh_id]);
 			model.Render_TexCoord();
 			model.Render_TexCoord2();
+
+			
 			drawModelShader.Disable();
 		}
 		/*if (selectionMode == 3)
@@ -693,42 +712,27 @@ namespace OpenMesh_EX {
 		else if (e->KeyChar == 'q') {
 
 			rotation += 5.0f;
-			scaling = false;
-			translating = false;
-			rotating = true;
 			hkoglPanelControl1->Invalidate();
 		}
 		else if (e->KeyChar == 'e') {
 
 			scal += 1.0f;
-			scaling = true;
-			rotating = false;
-			translating = false;
 			hkoglPanelControl1->Invalidate();
 		}
 		else if (e->KeyChar == 'r') {
 
 			scal -= 1.0f;
-			scaling = true;
-			rotating = false;
-			translating = false;
 			hkoglPanelControl1->Invalidate();
 		}
 		else if (e->KeyChar == 't') {
 
 			translat += 0.1f;
-			scaling = false;
-			rotating = false;
-			translating = true;
 			hkoglPanelControl1->Invalidate();
 			std::cout << translat << std::endl;
 		}
 		else if (e->KeyChar == 'y') {
 
 			translat -= 0.1f;
-			scaling = false;
-			rotating = false;
-			translating = true;
 			hkoglPanelControl1->Invalidate();
 			std::cout << translat << std::endl;
 		}
@@ -750,27 +754,8 @@ namespace OpenMesh_EX {
 			render_tex = false;
 			hkoglPanelControl1->Invalidate();
 		}
-		else if (e->KeyChar == '0') {
 
-			//MyMesh now=model.record_mesh(0);
-			model.create_mesh();
-			std::cout << "create mesh" << std::endl;
-			hkoglPanelControl1->Invalidate();
-		}
-		//換貼圖
-		else if (e->KeyChar == '9') {
 
-			if (tex_id == 0)
-			{
-				tex_id = 1;
-			}
-			else if (tex_id == 1)
-			{
-				tex_id = 0;
-			}
-			std::cout << "create mesh" << std::endl;
-			hkoglPanelControl1->Invalidate();
-		}
 
 	}
 			 //按下load model選單
@@ -868,5 +853,61 @@ namespace OpenMesh_EX {
 
 	}
 
-	};
+	
+
+
+	private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) {
+
+		openFileDialog1->Filter = "Image Files(*.PNG;*.JPG;*.GIF)|*.PNG;*.JPG;*.GIF|All files (*.*)|*.*";
+		
+		//openFileDialog1->Filter = "JPEG Files (*.jpg)|*.jpg|BMP Files (*.bmp)|*.bmp|All files (*.*)|*.*";
+
+		openFileDialog1->ShowDialog();
+	}
+	private: System::Void openFileDialog1_FileOk(System::Object^  sender, System::ComponentModel::CancelEventArgs^  e) {
+
+		std::string filename;
+		MarshalString(openFileDialog1->FileName, filename);
+
+		std::cout << filename << std::endl;
+		const char * file=filename.c_str();
+		int image_width;
+		int image_height;
+		int imgcor;
+		id.push_back(0);
+		stbi_set_flip_vertically_on_load(true);
+		unsigned char* bytes = stbi_load(file, &image_width, &image_height, &imgcor, 0);
+		glGenTextures(1, &id[id.size()-1]);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, id[id.size() - 1]);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		glGenerateMipmap(GL_TEXTURE_2D);
+		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+		stbi_image_free(bytes);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	
+		model.create_mesh();
+		std::cout << "create mesh" << std::endl;
+		textBox1->Text = "" + model.model.mesh_tex.size() ;
+
+		hkoglPanelControl1->Invalidate();
+
+	}
+private: System::Void numericUpDown1_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
+
+	numericUpDown1->Minimum = 0;
+	numericUpDown1->Maximum = model.model.mesh_tex.size()-1;
+	model.select_mesh((int)(numericUpDown1->Value));
+	hkoglPanelControl1->Invalidate();
+}
+
+
+
+};
 }

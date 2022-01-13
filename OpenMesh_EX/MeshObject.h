@@ -8,7 +8,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Eigen>
 #include "Common.h"
-
+#include <time.h>
 typedef OpenMesh::TriMesh_ArrayKernelT<>  TriMesh;
 using namespace Eigen;
 class MyMesh : public TriMesh
@@ -20,6 +20,7 @@ public:
 	int FindVertex(MyMesh::Point pointToFind);
 	void ClearMesh();
 };
+
 
 class GLMesh
 {
@@ -52,7 +53,10 @@ private:
 	//void caculateUV();
 
 };
-
+//struct Mesh_record {
+//	int mesh_id;
+//	std::vector<unsigned int> mesh_face;
+//};
 class MeshObject
 {
 public:
@@ -83,12 +87,12 @@ public:
 	void LoadToShader2();
 	void increase_face();
 	void decrease_face();
-
 	void create_mesh();
 	GLMesh model;
-
-	MyMesh record_mesh(int);
-
+	void select_mesh(int);
+	int change_mesh = 0;
+	int mesh_id;
+	//std::vector<struct mesh_record> mesh_record;
 private:
 
 	std::vector<unsigned int> selectedFace;
