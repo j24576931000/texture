@@ -111,6 +111,22 @@ namespace OpenMesh_EX {
 
 	private: System::Windows::Forms::NumericUpDown^  numericUpDown1;
 	private: System::Windows::Forms::TextBox^  textBox1;
+	private: System::Windows::Forms::Panel^  panel2;
+	private: System::Windows::Forms::Button^  edit;
+	private: System::Windows::Forms::Button^  move_right;
+
+	private: System::Windows::Forms::Button^  move_left;
+	private: System::Windows::Forms::Button^  rotate;
+
+
+	private: System::Windows::Forms::Button^  zoom_out;
+
+	private: System::Windows::Forms::Button^  zoom_in;
+	private: System::Windows::Forms::Button^  mesh_zoom_out;
+	private: System::Windows::Forms::Button^  mesh_zoom_in;
+
+
+	
 
 
 	private: System::ComponentModel::IContainer^  components;
@@ -133,8 +149,9 @@ namespace OpenMesh_EX {
 		/// </summary>
 		void InitializeComponent(void)
 		{
-			HKOGLPanel::HKCOGLPanelCameraSetting^  hkcoglPanelCameraSetting1 = (gcnew HKOGLPanel::HKCOGLPanelCameraSetting());
-			HKOGLPanel::HKCOGLPanelPixelFormat^  hkcoglPanelPixelFormat1 = (gcnew HKOGLPanel::HKCOGLPanelPixelFormat());
+			System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
+			HKOGLPanel::HKCOGLPanelCameraSetting^  hkcoglPanelCameraSetting2 = (gcnew HKOGLPanel::HKCOGLPanelCameraSetting());
+			HKOGLPanel::HKCOGLPanelPixelFormat^  hkcoglPanelPixelFormat2 = (gcnew HKOGLPanel::HKCOGLPanelPixelFormat());
 			this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
 			this->fileToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->loadModelToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -148,9 +165,19 @@ namespace OpenMesh_EX {
 			this->panel1 = (gcnew System::Windows::Forms::Panel());
 			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
 			this->numericUpDown1 = (gcnew System::Windows::Forms::NumericUpDown());
+			this->panel2 = (gcnew System::Windows::Forms::Panel());
+			this->move_right = (gcnew System::Windows::Forms::Button());
+			this->move_left = (gcnew System::Windows::Forms::Button());
+			this->rotate = (gcnew System::Windows::Forms::Button());
+			this->zoom_out = (gcnew System::Windows::Forms::Button());
+			this->zoom_in = (gcnew System::Windows::Forms::Button());
+			this->edit = (gcnew System::Windows::Forms::Button());
+			this->mesh_zoom_in = (gcnew System::Windows::Forms::Button());
+			this->mesh_zoom_out = (gcnew System::Windows::Forms::Button());
 			this->menuStrip1->SuspendLayout();
 			this->panel1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown1))->BeginInit();
+			this->panel2->SuspendLayout();
 			this->SuspendLayout();
 			// 
 			// menuStrip1
@@ -197,18 +224,20 @@ namespace OpenMesh_EX {
 			// 
 			// hkoglPanelControl1
 			// 
-			hkcoglPanelCameraSetting1->Far = 1000;
-			hkcoglPanelCameraSetting1->Fov = 45;
-			hkcoglPanelCameraSetting1->Near = -1000;
-			hkcoglPanelCameraSetting1->Type = HKOGLPanel::HKCOGLPanelCameraSetting::CAMERATYPE::ORTHOGRAPHIC;
-			this->hkoglPanelControl1->Camera_Setting = hkcoglPanelCameraSetting1;
+			this->hkoglPanelControl1->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"hkoglPanelControl1.BackgroundImage")));
+			this->hkoglPanelControl1->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Zoom;
+			hkcoglPanelCameraSetting2->Far = 1000;
+			hkcoglPanelCameraSetting2->Fov = 45;
+			hkcoglPanelCameraSetting2->Near = -1000;
+			hkcoglPanelCameraSetting2->Type = HKOGLPanel::HKCOGLPanelCameraSetting::CAMERATYPE::ORTHOGRAPHIC;
+			this->hkoglPanelControl1->Camera_Setting = hkcoglPanelCameraSetting2;
 			this->hkoglPanelControl1->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->hkoglPanelControl1->Location = System::Drawing::Point(0, 24);
 			this->hkoglPanelControl1->Name = L"hkoglPanelControl1";
-			hkcoglPanelPixelFormat1->Accumu_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
-			hkcoglPanelPixelFormat1->Alpha_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
-			hkcoglPanelPixelFormat1->Stencil_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
-			this->hkoglPanelControl1->Pixel_Format = hkcoglPanelPixelFormat1;
+			hkcoglPanelPixelFormat2->Accumu_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
+			hkcoglPanelPixelFormat2->Alpha_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
+			hkcoglPanelPixelFormat2->Stencil_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
+			this->hkoglPanelControl1->Pixel_Format = hkcoglPanelPixelFormat2;
 			this->hkoglPanelControl1->Size = System::Drawing::Size(800, 600);
 			this->hkoglPanelControl1->TabIndex = 2;
 			this->hkoglPanelControl1->Load += gcnew System::EventHandler(this, &MyForm::hkoglPanelControl1_Load);
@@ -261,11 +290,115 @@ namespace OpenMesh_EX {
 			this->numericUpDown1->TabIndex = 0;
 			this->numericUpDown1->ValueChanged += gcnew System::EventHandler(this, &MyForm::numericUpDown1_ValueChanged);
 			// 
+			// panel2
+			// 
+			this->panel2->Controls->Add(this->mesh_zoom_out);
+			this->panel2->Controls->Add(this->mesh_zoom_in);
+			this->panel2->Controls->Add(this->move_right);
+			this->panel2->Controls->Add(this->move_left);
+			this->panel2->Controls->Add(this->rotate);
+			this->panel2->Controls->Add(this->zoom_out);
+			this->panel2->Controls->Add(this->zoom_in);
+			this->panel2->Controls->Add(this->edit);
+			this->panel2->Dock = System::Windows::Forms::DockStyle::Left;
+			this->panel2->Location = System::Drawing::Point(0, 24);
+			this->panel2->Name = L"panel2";
+			this->panel2->Size = System::Drawing::Size(200, 600);
+			this->panel2->TabIndex = 5;
+			// 
+			// move_right
+			// 
+			this->move_right->Location = System::Drawing::Point(120, 342);
+			this->move_right->Name = L"move_right";
+			this->move_right->Size = System::Drawing::Size(50, 50);
+			this->move_right->TabIndex = 11;
+			this->move_right->Text = L"➤";
+			this->move_right->UseVisualStyleBackColor = true;
+			this->move_right->Click += gcnew System::EventHandler(this, &MyForm::move_right_Click);
+			// 
+			// move_left
+			// 
+			this->move_left->Location = System::Drawing::Point(25, 342);
+			this->move_left->Name = L"move_left";
+			this->move_left->Size = System::Drawing::Size(50, 50);
+			this->move_left->TabIndex = 10;
+			this->move_left->Text = L"⇦";
+			this->move_left->TextImageRelation = System::Windows::Forms::TextImageRelation::ImageBeforeText;
+			this->move_left->UseVisualStyleBackColor = true;
+			this->move_left->Click += gcnew System::EventHandler(this, &MyForm::move_left_Click);
+			// 
+			// rotate
+			// 
+			this->rotate->Location = System::Drawing::Point(60, 283);
+			this->rotate->Name = L"rotate";
+			this->rotate->Size = System::Drawing::Size(75, 23);
+			this->rotate->TabIndex = 9;
+			this->rotate->Text = L"↪";
+			this->rotate->UseVisualStyleBackColor = true;
+			this->rotate->Click += gcnew System::EventHandler(this, &MyForm::rotate_Click);
+			// 
+			// zoom_out
+			// 
+			this->zoom_out->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"zoom_out.BackgroundImage")));
+			this->zoom_out->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Zoom;
+			this->zoom_out->Location = System::Drawing::Point(120, 192);
+			this->zoom_out->Name = L"zoom_out";
+			this->zoom_out->Size = System::Drawing::Size(50, 50);
+			this->zoom_out->TabIndex = 8;
+			this->zoom_out->UseVisualStyleBackColor = true;
+			this->zoom_out->Click += gcnew System::EventHandler(this, &MyForm::zoom_out_Click);
+			// 
+			// zoom_in
+			// 
+			this->zoom_in->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"zoom_in.BackgroundImage")));
+			this->zoom_in->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Zoom;
+			this->zoom_in->Location = System::Drawing::Point(25, 192);
+			this->zoom_in->Name = L"zoom_in";
+			this->zoom_in->Size = System::Drawing::Size(50, 50);
+			this->zoom_in->TabIndex = 7;
+			this->zoom_in->UseVisualStyleBackColor = true;
+			this->zoom_in->Click += gcnew System::EventHandler(this, &MyForm::zoom_in_Click);
+			// 
+			// edit
+			// 
+			this->edit->BackColor = System::Drawing::SystemColors::ButtonFace;
+			this->edit->Location = System::Drawing::Point(0, 3);
+			this->edit->Name = L"edit";
+			this->edit->Size = System::Drawing::Size(75, 23);
+			this->edit->TabIndex = 6;
+			this->edit->Text = L"edit";
+			this->edit->TextImageRelation = System::Windows::Forms::TextImageRelation::TextAboveImage;
+			this->edit->UseVisualStyleBackColor = false;
+			this->edit->Click += gcnew System::EventHandler(this, &MyForm::edit_Click);
+			// 
+			// mesh_zoom_in
+			// 
+			this->mesh_zoom_in->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"mesh_zoom_in.BackgroundImage")));
+			this->mesh_zoom_in->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Zoom;
+			this->mesh_zoom_in->Location = System::Drawing::Point(25, 100);
+			this->mesh_zoom_in->Name = L"mesh_zoom_in";
+			this->mesh_zoom_in->Size = System::Drawing::Size(50, 50);
+			this->mesh_zoom_in->TabIndex = 13;
+			this->mesh_zoom_in->UseVisualStyleBackColor = true;
+			this->mesh_zoom_in->Click += gcnew System::EventHandler(this, &MyForm::mesh_zoom_in_Click);
+			// 
+			// mesh_zoom_out
+			// 
+			this->mesh_zoom_out->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"mesh_zoom_out.BackgroundImage")));
+			this->mesh_zoom_out->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Zoom;
+			this->mesh_zoom_out->Location = System::Drawing::Point(120, 100);
+			this->mesh_zoom_out->Name = L"mesh_zoom_out";
+			this->mesh_zoom_out->Size = System::Drawing::Size(50, 50);
+			this->mesh_zoom_out->TabIndex = 14;
+			this->mesh_zoom_out->UseVisualStyleBackColor = true;
+			this->mesh_zoom_out->Click += gcnew System::EventHandler(this, &MyForm::mesh_zoom_out_Click);
+			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 12);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(800, 624);
+			this->Controls->Add(this->panel2);
 			this->Controls->Add(this->panel1);
 			this->Controls->Add(this->button1);
 			this->Controls->Add(this->hkoglPanelControl1);
@@ -279,6 +412,7 @@ namespace OpenMesh_EX {
 			this->panel1->ResumeLayout(false);
 			this->panel1->PerformLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown1))->EndInit();
+			this->panel2->ResumeLayout(false);
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -307,47 +441,7 @@ namespace OpenMesh_EX {
 		pickingShader.Init();
 		pickingTexture.Init(windowWidth, windowHeight);
 
-		drawPickingFaceShader.Init();
-		//drawPointShader.Init();
-		//glGenBuffers(1, &vboPoint);
-		//TEXTURE=pickingTexture.MY_TEX(windowWidth, windowHeight);
-		//int image_width;
-		//int image_height;
-		//int imgcor;
-
-		//stbi_set_flip_vertically_on_load(true);
-		//unsigned char* bytes = stbi_load("Right_Tex.png", &image_width, &image_height, &imgcor, 0);
-		//glGenTextures(1, &id);
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, id);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-		//glGenerateMipmap(GL_TEXTURE_2D);
-		////glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
-		//stbi_image_free(bytes);
-		//glBindTexture(GL_TEXTURE_2D, 0);
-
-		//bytes = stbi_load("123.jpg", &image_width, &image_height, &imgcor, 0);
-		//glGenTextures(1, &id2);
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, id2);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-		//glGenerateMipmap(GL_TEXTURE_2D);
-		////glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
-		//stbi_image_free(bytes);
-		//glBindTexture(GL_TEXTURE_2D, 0);
-
+		drawPickingFaceShader.Init();	
 	}
 			 //畫
 	private: System::Void hkoglPanelControl1_Paint(System::Object^  sender, System::Windows::Forms::PaintEventArgs^  e)
@@ -419,7 +513,7 @@ namespace OpenMesh_EX {
 				model.RenderSelectedFace();
 			drawPickingFaceShader.Disable();
 		}
-		if (light == false)
+		if (light == false&&edit_mode==false)
 		{
 			drawModelShader.Enable();
 			drawModelShader.SetFaceColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -450,7 +544,7 @@ namespace OpenMesh_EX {
 
 			drawModelShader.DrawTexCoord(true);
 			drawModelShader.DrawTexture(true);
-			//drawModelShader.UseLighting(true);
+			drawModelShader.UseLighting(true);
 			drawModelShader.SetUVRotMat(ScaleMat*RotateMat*TranslateMat);
 
 			drawModelShader.SetNormalMat(normalMat);
@@ -708,47 +802,7 @@ namespace OpenMesh_EX {
 			render_tex = true;
 
 			hkoglPanelControl1->Invalidate();
-		}
-		else if (e->KeyChar == 'q') {
-
-			rotation += 5.0f;
-			hkoglPanelControl1->Invalidate();
-		}
-		else if (e->KeyChar == 'e') {
-
-			scal += 1.0f;
-			hkoglPanelControl1->Invalidate();
-		}
-		else if (e->KeyChar == 'r') {
-
-			scal -= 1.0f;
-			hkoglPanelControl1->Invalidate();
-		}
-		else if (e->KeyChar == 't') {
-
-			translat += 0.1f;
-			hkoglPanelControl1->Invalidate();
-			std::cout << translat << std::endl;
-		}
-		else if (e->KeyChar == 'y') {
-
-			translat -= 0.1f;
-			hkoglPanelControl1->Invalidate();
-			std::cout << translat << std::endl;
-		}
-		//放大
-		else if (e->KeyChar == 'o') {
-
-			model.increase_face();
-			hkoglPanelControl1->Invalidate();
-		}
-		//縮小
-		else if (e->KeyChar == 'i') {
-
-			model.decrease_face();
-			hkoglPanelControl1->Invalidate();
-		}
-
+		}	
 		else if (e->KeyChar == '6') {
 
 			render_tex = false;
@@ -899,15 +953,64 @@ namespace OpenMesh_EX {
 		hkoglPanelControl1->Invalidate();
 
 	}
-private: System::Void numericUpDown1_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
+	private: System::Void numericUpDown1_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
 
-	numericUpDown1->Minimum = 0;
-	numericUpDown1->Maximum = model.model.mesh_tex.size()-1;
-	model.select_mesh((int)(numericUpDown1->Value));
-	hkoglPanelControl1->Invalidate();
-}
+		numericUpDown1->Minimum = 0;
+		numericUpDown1->Maximum = model.model.mesh_tex.size()-1;
+		model.select_mesh((int)(numericUpDown1->Value));
+		hkoglPanelControl1->Invalidate();
+	}
 
 
 
+	private: System::Void edit_Click(System::Object^  sender, System::EventArgs^  e) {
+
+		if (edit_mode == false)
+		{
+			edit_mode = true;
+			model.edit = true;
+			model.edit_mode = true;
+		}
+		else if (edit_mode == true)
+		{
+			edit_mode = false;
+			model.edit = false;
+			model.edit_mode = false;
+		}
+		hkoglPanelControl1->Invalidate();
+	}
+
+
+	private: System::Void zoom_in_Click(System::Object^  sender, System::EventArgs^  e) {
+		scal += 1.0f;
+		hkoglPanelControl1->Invalidate();
+
+	}
+	private: System::Void zoom_out_Click(System::Object^  sender, System::EventArgs^  e) {
+		scal -= 1.0f;
+		hkoglPanelControl1->Invalidate();
+
+	}
+	private: System::Void move_right_Click(System::Object^  sender, System::EventArgs^  e) {
+		translat -= 0.1f;
+		hkoglPanelControl1->Invalidate();
+	}
+	private: System::Void move_left_Click(System::Object^  sender, System::EventArgs^  e) {
+		translat += 0.1f;
+		hkoglPanelControl1->Invalidate();
+	}
+
+	private: System::Void rotate_Click(System::Object^  sender, System::EventArgs^  e) {
+		rotation += 5.0f;
+		hkoglPanelControl1->Invalidate();
+	}
+	private: System::Void mesh_zoom_in_Click(System::Object^  sender, System::EventArgs^  e) {
+		model.increase_face();
+		hkoglPanelControl1->Invalidate();
+	}
+	private: System::Void mesh_zoom_out_Click(System::Object^  sender, System::EventArgs^  e) {
+		model.decrease_face();
+		hkoglPanelControl1->Invalidate();
+	}
 };
 }

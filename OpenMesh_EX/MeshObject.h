@@ -18,6 +18,7 @@ public:
 	~MyMesh();
 
 	int FindVertex(MyMesh::Point pointToFind);
+	int FindFace(MyMesh::Point pointToFind1, MyMesh::Point pointToFind2, MyMesh::Point pointToFind3);
 	void ClearMesh();
 };
 
@@ -92,6 +93,9 @@ public:
 	void select_mesh(int);
 	int change_mesh = 0;
 	int mesh_id;
+	void mesh_move(unsigned int);
+	bool edit = false;
+	bool edit_mode = false;
 	//std::vector<struct mesh_record> mesh_record;
 private:
 

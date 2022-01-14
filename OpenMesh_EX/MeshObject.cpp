@@ -42,7 +42,57 @@ int MyMesh::FindVertex(MyMesh::Point pointToFind)
 
 	return idx;
 }
-
+int MyMesh::FindFace(MyMesh::Point pointToFind1, MyMesh::Point pointToFind2,MyMesh::Point pointToFind3)
+{
+	int idx = -1;
+	std::vector<int>point_face1;
+	std::vector<int>point_face2;
+	int num = 0;
+	for (MyMesh::VertexIter v_it = vertices_begin(); v_it != vertices_end(); ++v_it)
+	{
+		MyMesh::Point p = point(*v_it);
+		if (pointToFind1 == p)
+		{
+			std::cout << v_it->idx() << std::endl;
+			for (MyMesh::VertexFaceIter vf_it = vf_iter(*v_it); vf_it.is_valid(); ++vf_it)
+			{
+				point_face1.push_back(vf_it->idx());
+			}
+			break;
+		}
+	}
+	for (MyMesh::VertexIter v_it = vertices_begin(); v_it != vertices_end(); ++v_it)
+	{
+		MyMesh::Point p = point(*v_it);
+		if (pointToFind2 == p)
+		{
+			for (MyMesh::VertexFaceIter vf_it = vf_iter(*v_it); vf_it.is_valid(); ++vf_it)
+			{
+				if (std::find(point_face1.begin(), point_face1.end(), (*vf_it).idx()) != point_face1.end())
+				{
+					point_face2.push_back(vf_it->idx());
+				}
+			}
+			break;
+		}	
+	}
+	for (MyMesh::VertexIter v_it = vertices_begin(); v_it != vertices_end(); ++v_it)
+	{
+		MyMesh::Point p = point(*v_it);
+		if (pointToFind3 == p)
+		{
+			for (MyMesh::VertexFaceIter vf_it = vf_iter(*v_it); vf_it.is_valid(); ++vf_it)
+			{
+				if (std::find(point_face2.begin(), point_face2.end(), (*vf_it).idx()) != point_face2.end())
+				{
+					idx=(vf_it->idx());					
+				}
+			}
+			break;
+		}		
+	}	
+	return idx;
+}
 void MyMesh::ClearMesh()
 {
 	if (!faces_empty())
@@ -270,30 +320,37 @@ void MeshObject::RenderSelectedFace()
 bool MeshObject::AddSelectedFace(unsigned int faceID)
 {
 	//std::cout << "faceID:   " << faceID << std::endl;
-	if (std::find(selectedFace.begin(), selectedFace.end(), faceID) == selectedFace.end() &&
-		faceID >= 0 && faceID < model.mesh.n_faces())
+	if (edit == true&&edit_mode==true)
 	{
-		selectedFace.push_back(faceID);
-
-		//for (MyMesh::FaceIter f_it = model.mesh.faces_begin(); f_it != model.mesh.faces_end(); ++f_it)
-		//{			
-			//for (int i = 0; i < selectedFace.size(); i++)
-			//{					
-				//if (*f_it == (const OpenMesh::ArrayKernel::FaceHandle)selectedFace[i])
-				//{
-		for (MyMesh::FaceVertexIter fv_it = model.mesh.fv_iter((OpenMesh::ArrayKernel::FaceHandle)faceID); fv_it.is_valid(); ++fv_it)
+		mesh_move(faceID);
+	}
+	else
+	{
+		if (std::find(selectedFace.begin(), selectedFace.end(), faceID) == selectedFace.end() &&
+			faceID >= 0 && faceID < model.mesh.n_faces())
 		{
-			if (std::find(selectedpoint.begin(), selectedpoint.end(), *fv_it) == selectedpoint.end())
+			selectedFace.push_back(faceID);
+
+			//for (MyMesh::FaceIter f_it = model.mesh.faces_begin(); f_it != model.mesh.faces_end(); ++f_it)
+			//{			
+				//for (int i = 0; i < selectedFace.size(); i++)
+				//{					
+					//if (*f_it == (const OpenMesh::ArrayKernel::FaceHandle)selectedFace[i])
+					//{
+			for (MyMesh::FaceVertexIter fv_it = model.mesh.fv_iter((OpenMesh::ArrayKernel::FaceHandle)faceID); fv_it.is_valid(); ++fv_it)
 			{
-				selectedpoint.push_back(*fv_it);
+				if (std::find(selectedpoint.begin(), selectedpoint.end(), *fv_it) == selectedpoint.end())
+				{
+					selectedpoint.push_back(*fv_it);
+				}
+				model.mesh.property(pp, *fv_it) = model.mesh.point(*fv_it);
+				//std::cout << *fv_it << ":   " << model.mesh.property(pp, *fv_it) << std::endl;					
 			}
-			model.mesh.property(pp, *fv_it) = model.mesh.point(*fv_it);
-			//std::cout << *fv_it << ":   " << model.mesh.property(pp, *fv_it) << std::endl;					
-		}
-		//}		
+			//}		
+		//}
 	//}
-//}
-		return true;
+			return true;
+		}
 	}
 	return false;
 }
@@ -930,11 +987,26 @@ void MeshObject::select_mesh(int mesh_num)
 	selectedFace.clear();
 	selectedpoint.clear();
 	model.mesh2 = model.mesh_tex[mesh_id];
-	std::vector<int> face_id;
+	
+	for (MyMesh::FaceIter f_it = model.mesh_tex[mesh_id].faces_begin(); f_it != model.mesh_tex[mesh_id].faces_end(); ++f_it)
+	{
+		for (MyMesh::FaceVertexIter fv_it = model.mesh_tex[mesh_id].fv_iter(*f_it); fv_it.is_valid(); ++fv_it)
+		{
+			MyMesh::Point p1 = model.mesh_tex[mesh_id].point(*fv_it);
+			++fv_it;
+			MyMesh::Point p2 = model.mesh_tex[mesh_id].point(*fv_it);
+			++fv_it;
+			MyMesh::Point p3 = model.mesh_tex[mesh_id].point(*fv_it);
+			int now = model.mesh.FindFace(p1, p2,p3);
+			AddSelectedFace(now);
+		}
+	}
+	/*std::vector<int> face_id;
 	std::vector<int>mesh_point;
 	for (MyMesh::VertexIter v_it = model.mesh_tex[mesh_id].vertices_begin(); v_it != model.mesh_tex[mesh_id].vertices_end(); ++v_it)
 	{
 		int now = model.mesh.FindVertex(model.mesh_tex[mesh_id].point(*v_it));
+		std::cout << "test2 " << now << std::endl;
 		mesh_point.push_back(now);		
 	}
 	for (int i = 0; i < mesh_point.size(); i++)
@@ -949,8 +1021,8 @@ void MeshObject::select_mesh(int mesh_num)
 	{
 		AddSelectedFace(face_id[i]);
 
-	}
-	face_id.clear();
+	}*/
+	//face_id.clear();
 	AddSelectedFacefinished();
 	//decrease_face();
 }
@@ -1051,6 +1123,63 @@ void MeshObject::decrease_face()
 	}
 	face_id.clear();
 	AddSelectedFacefinished();
+}
+
+void MeshObject::mesh_move(unsigned int faceID)
+{
+	std::cout << "test1" << std::endl;
+	model.mesh2.ClearMesh();
+	selectedFace.clear();
+	selectedpoint.clear();
+	edit = false;
+	AddSelectedFace(faceID);
+	std::vector<OpenMesh::ArrayKernel::VertexHandle>used_point;
+	for (int i = 0; i < selectedpoint.size(); i++)
+	{
+		used_point.push_back(selectedpoint[i]);
+	}
+	std::cout << "test2" << std::endl;
+	for (int i = 0; i < used_point.size(); i++)
+	{
+		std::cout << used_point[i] << std::endl;
+		for (MyMesh::VertexFaceIter vf_it = model.mesh.vf_iter((OpenMesh::ArrayKernel::VertexHandle)used_point[i]); vf_it.is_valid(); ++vf_it)
+		{
+
+			AddSelectedFace((*vf_it).idx());
+		}
+	}
+	used_point.clear();
+	for (int i = 0; i < selectedpoint.size(); i++)
+	{
+		used_point.push_back(selectedpoint[i]);
+	}
+	for (int i = 0; i < used_point.size(); i++)
+	{
+		std::cout << used_point[i] << std::endl;
+		for (MyMesh::VertexFaceIter vf_it = model.mesh.vf_iter((OpenMesh::ArrayKernel::VertexHandle)used_point[i]); vf_it.is_valid(); ++vf_it)
+		{
+
+			AddSelectedFace((*vf_it).idx());
+		}
+	}
+	std::cout << "test3" << std::endl;
+	AddSelectedFacefinished();
+	edit = true;
+	/*std::set<int>used;
+	for (MyMesh::VertexIter v_it = model.mesh_tex[mesh_id].vertices_begin(); v_it != model.mesh_tex[mesh_id].vertices_end(); ++v_it)
+	{
+		if (model.mesh_tex[mesh_id].is_boundary(*v_it))
+			used.insert((*v_it).idx());
+		for (MyMesh::VertexVertexIter vv_it = model.mesh_tex[mesh_id].vv_iter(*v_it); vv_it.is_valid(); ++vv_it)
+		{
+			used.insert((*vv_it).idx());
+			for (MyMesh::VertexVertexIter vv_it = model.mesh_tex[mesh_id].vv_iter(*vv_it); vv_it.is_valid(); ++vv_it)
+			{
+				used.insert((*vv_it).idx());
+			}
+		}
+	}*/
+	
 }
 float MeshObject::cotan(OpenMesh::Vec3f a, OpenMesh::Vec3f b) {
 	return (a | b) / (a%b).norm();
