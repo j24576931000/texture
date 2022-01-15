@@ -96,9 +96,16 @@ public:
 	void mesh_move(unsigned int);
 	bool edit = false;
 	bool edit_mode = false;
+	int edit_num = 1;
+	void other_mesh_increase();
+	void other_mesh_increase_face();
+	void new_mesh_info();
 	//std::vector<struct mesh_record> mesh_record;
+	std::vector<unsigned int> boundary;
+	void face_num();
+	int origin_face_num=0;
 private:
-
+	
 	std::vector<unsigned int> selectedFace;
 	std::vector<OpenMesh::ArrayKernel::VertexHandle> selectedpoint;
 	std::vector<MyMesh::Point> point;
@@ -131,7 +138,6 @@ private:
 
 
 	OpenMesh::VPropHandleT<OpenMesh::Vec2f> v_2d;//存map到的點位置
-
 
 
 

@@ -52,6 +52,7 @@ std::vector<GLuint> id;
 int tex_id = 0;
 //Tri_Mesh *mesh;
 bool edit_mode = false;
+int edit_num = 1;
 //xform xf;
 //GLCamera camera;
 //float fov = 0.7f;
@@ -124,6 +125,13 @@ namespace OpenMesh_EX {
 	private: System::Windows::Forms::Button^  zoom_in;
 	private: System::Windows::Forms::Button^  mesh_zoom_out;
 	private: System::Windows::Forms::Button^  mesh_zoom_in;
+	private: System::Windows::Forms::Button^  button3;
+	private: System::Windows::Forms::Button^  button2;
+	private: System::Windows::Forms::GroupBox^  groupBox1;
+	private: System::Windows::Forms::CheckBox^  checkBox1;
+	private: System::Windows::Forms::Button^  button4;
+	private: System::Windows::Forms::PictureBox^  pictureBox1;
+	private: System::Windows::Forms::GroupBox^  groupBox2;
 
 
 	
@@ -150,8 +158,8 @@ namespace OpenMesh_EX {
 		void InitializeComponent(void)
 		{
 			System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
-			HKOGLPanel::HKCOGLPanelCameraSetting^  hkcoglPanelCameraSetting2 = (gcnew HKOGLPanel::HKCOGLPanelCameraSetting());
-			HKOGLPanel::HKCOGLPanelPixelFormat^  hkcoglPanelPixelFormat2 = (gcnew HKOGLPanel::HKCOGLPanelPixelFormat());
+			HKOGLPanel::HKCOGLPanelCameraSetting^  hkcoglPanelCameraSetting3 = (gcnew HKOGLPanel::HKCOGLPanelCameraSetting());
+			HKOGLPanel::HKCOGLPanelPixelFormat^  hkcoglPanelPixelFormat3 = (gcnew HKOGLPanel::HKCOGLPanelPixelFormat());
 			this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
 			this->fileToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->loadModelToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -163,21 +171,31 @@ namespace OpenMesh_EX {
 			this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->colorDialog1 = (gcnew System::Windows::Forms::ColorDialog());
 			this->panel1 = (gcnew System::Windows::Forms::Panel());
+			this->pictureBox1 = (gcnew System::Windows::Forms::PictureBox());
 			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
 			this->numericUpDown1 = (gcnew System::Windows::Forms::NumericUpDown());
 			this->panel2 = (gcnew System::Windows::Forms::Panel());
-			this->move_right = (gcnew System::Windows::Forms::Button());
-			this->move_left = (gcnew System::Windows::Forms::Button());
-			this->rotate = (gcnew System::Windows::Forms::Button());
-			this->zoom_out = (gcnew System::Windows::Forms::Button());
-			this->zoom_in = (gcnew System::Windows::Forms::Button());
-			this->edit = (gcnew System::Windows::Forms::Button());
+			this->groupBox1 = (gcnew System::Windows::Forms::GroupBox());
 			this->mesh_zoom_in = (gcnew System::Windows::Forms::Button());
 			this->mesh_zoom_out = (gcnew System::Windows::Forms::Button());
+			this->zoom_in = (gcnew System::Windows::Forms::Button());
+			this->move_right = (gcnew System::Windows::Forms::Button());
+			this->zoom_out = (gcnew System::Windows::Forms::Button());
+			this->move_left = (gcnew System::Windows::Forms::Button());
+			this->rotate = (gcnew System::Windows::Forms::Button());
+			this->checkBox1 = (gcnew System::Windows::Forms::CheckBox());
+			this->button3 = (gcnew System::Windows::Forms::Button());
+			this->button2 = (gcnew System::Windows::Forms::Button());
+			this->edit = (gcnew System::Windows::Forms::Button());
+			this->button4 = (gcnew System::Windows::Forms::Button());
+			this->groupBox2 = (gcnew System::Windows::Forms::GroupBox());
 			this->menuStrip1->SuspendLayout();
 			this->panel1->SuspendLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown1))->BeginInit();
 			this->panel2->SuspendLayout();
+			this->groupBox1->SuspendLayout();
+			this->groupBox2->SuspendLayout();
 			this->SuspendLayout();
 			// 
 			// menuStrip1
@@ -226,18 +244,18 @@ namespace OpenMesh_EX {
 			// 
 			this->hkoglPanelControl1->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"hkoglPanelControl1.BackgroundImage")));
 			this->hkoglPanelControl1->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Zoom;
-			hkcoglPanelCameraSetting2->Far = 1000;
-			hkcoglPanelCameraSetting2->Fov = 45;
-			hkcoglPanelCameraSetting2->Near = -1000;
-			hkcoglPanelCameraSetting2->Type = HKOGLPanel::HKCOGLPanelCameraSetting::CAMERATYPE::ORTHOGRAPHIC;
-			this->hkoglPanelControl1->Camera_Setting = hkcoglPanelCameraSetting2;
+			hkcoglPanelCameraSetting3->Far = 1000;
+			hkcoglPanelCameraSetting3->Fov = 45;
+			hkcoglPanelCameraSetting3->Near = -1000;
+			hkcoglPanelCameraSetting3->Type = HKOGLPanel::HKCOGLPanelCameraSetting::CAMERATYPE::ORTHOGRAPHIC;
+			this->hkoglPanelControl1->Camera_Setting = hkcoglPanelCameraSetting3;
 			this->hkoglPanelControl1->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->hkoglPanelControl1->Location = System::Drawing::Point(0, 24);
 			this->hkoglPanelControl1->Name = L"hkoglPanelControl1";
-			hkcoglPanelPixelFormat2->Accumu_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
-			hkcoglPanelPixelFormat2->Alpha_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
-			hkcoglPanelPixelFormat2->Stencil_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
-			this->hkoglPanelControl1->Pixel_Format = hkcoglPanelPixelFormat2;
+			hkcoglPanelPixelFormat3->Accumu_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
+			hkcoglPanelPixelFormat3->Alpha_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
+			hkcoglPanelPixelFormat3->Stencil_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
+			this->hkoglPanelControl1->Pixel_Format = hkcoglPanelPixelFormat3;
 			this->hkoglPanelControl1->Size = System::Drawing::Size(800, 600);
 			this->hkoglPanelControl1->TabIndex = 2;
 			this->hkoglPanelControl1->Load += gcnew System::EventHandler(this, &MyForm::hkoglPanelControl1_Load);
@@ -267,6 +285,7 @@ namespace OpenMesh_EX {
 			// 
 			// panel1
 			// 
+			this->panel1->Controls->Add(this->groupBox2);
 			this->panel1->Controls->Add(this->textBox1);
 			this->panel1->Controls->Add(this->numericUpDown1);
 			this->panel1->Dock = System::Windows::Forms::DockStyle::Right;
@@ -274,6 +293,17 @@ namespace OpenMesh_EX {
 			this->panel1->Name = L"panel1";
 			this->panel1->Size = System::Drawing::Size(200, 600);
 			this->panel1->TabIndex = 4;
+			// 
+			// pictureBox1
+			// 
+			this->pictureBox1->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Zoom;
+			this->pictureBox1->Location = System::Drawing::Point(30, 31);
+			this->pictureBox1->Name = L"pictureBox1";
+			this->pictureBox1->Size = System::Drawing::Size(100, 50);
+			this->pictureBox1->SizeMode = System::Windows::Forms::PictureBoxSizeMode::Zoom;
+			this->pictureBox1->TabIndex = 2;
+			this->pictureBox1->TabStop = false;
+			this->pictureBox1->Click += gcnew System::EventHandler(this, &MyForm::pictureBox1_Click);
 			// 
 			// textBox1
 			// 
@@ -292,13 +322,10 @@ namespace OpenMesh_EX {
 			// 
 			// panel2
 			// 
-			this->panel2->Controls->Add(this->mesh_zoom_out);
-			this->panel2->Controls->Add(this->mesh_zoom_in);
-			this->panel2->Controls->Add(this->move_right);
-			this->panel2->Controls->Add(this->move_left);
-			this->panel2->Controls->Add(this->rotate);
-			this->panel2->Controls->Add(this->zoom_out);
-			this->panel2->Controls->Add(this->zoom_in);
+			this->panel2->Controls->Add(this->groupBox1);
+			this->panel2->Controls->Add(this->checkBox1);
+			this->panel2->Controls->Add(this->button3);
+			this->panel2->Controls->Add(this->button2);
 			this->panel2->Controls->Add(this->edit);
 			this->panel2->Dock = System::Windows::Forms::DockStyle::Left;
 			this->panel2->Location = System::Drawing::Point(0, 24);
@@ -306,76 +333,27 @@ namespace OpenMesh_EX {
 			this->panel2->Size = System::Drawing::Size(200, 600);
 			this->panel2->TabIndex = 5;
 			// 
-			// move_right
+			// groupBox1
 			// 
-			this->move_right->Location = System::Drawing::Point(120, 342);
-			this->move_right->Name = L"move_right";
-			this->move_right->Size = System::Drawing::Size(50, 50);
-			this->move_right->TabIndex = 11;
-			this->move_right->Text = L"➤";
-			this->move_right->UseVisualStyleBackColor = true;
-			this->move_right->Click += gcnew System::EventHandler(this, &MyForm::move_right_Click);
-			// 
-			// move_left
-			// 
-			this->move_left->Location = System::Drawing::Point(25, 342);
-			this->move_left->Name = L"move_left";
-			this->move_left->Size = System::Drawing::Size(50, 50);
-			this->move_left->TabIndex = 10;
-			this->move_left->Text = L"⇦";
-			this->move_left->TextImageRelation = System::Windows::Forms::TextImageRelation::ImageBeforeText;
-			this->move_left->UseVisualStyleBackColor = true;
-			this->move_left->Click += gcnew System::EventHandler(this, &MyForm::move_left_Click);
-			// 
-			// rotate
-			// 
-			this->rotate->Location = System::Drawing::Point(60, 283);
-			this->rotate->Name = L"rotate";
-			this->rotate->Size = System::Drawing::Size(75, 23);
-			this->rotate->TabIndex = 9;
-			this->rotate->Text = L"↪";
-			this->rotate->UseVisualStyleBackColor = true;
-			this->rotate->Click += gcnew System::EventHandler(this, &MyForm::rotate_Click);
-			// 
-			// zoom_out
-			// 
-			this->zoom_out->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"zoom_out.BackgroundImage")));
-			this->zoom_out->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Zoom;
-			this->zoom_out->Location = System::Drawing::Point(120, 192);
-			this->zoom_out->Name = L"zoom_out";
-			this->zoom_out->Size = System::Drawing::Size(50, 50);
-			this->zoom_out->TabIndex = 8;
-			this->zoom_out->UseVisualStyleBackColor = true;
-			this->zoom_out->Click += gcnew System::EventHandler(this, &MyForm::zoom_out_Click);
-			// 
-			// zoom_in
-			// 
-			this->zoom_in->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"zoom_in.BackgroundImage")));
-			this->zoom_in->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Zoom;
-			this->zoom_in->Location = System::Drawing::Point(25, 192);
-			this->zoom_in->Name = L"zoom_in";
-			this->zoom_in->Size = System::Drawing::Size(50, 50);
-			this->zoom_in->TabIndex = 7;
-			this->zoom_in->UseVisualStyleBackColor = true;
-			this->zoom_in->Click += gcnew System::EventHandler(this, &MyForm::zoom_in_Click);
-			// 
-			// edit
-			// 
-			this->edit->BackColor = System::Drawing::SystemColors::ButtonFace;
-			this->edit->Location = System::Drawing::Point(0, 3);
-			this->edit->Name = L"edit";
-			this->edit->Size = System::Drawing::Size(75, 23);
-			this->edit->TabIndex = 6;
-			this->edit->Text = L"edit";
-			this->edit->TextImageRelation = System::Windows::Forms::TextImageRelation::TextAboveImage;
-			this->edit->UseVisualStyleBackColor = false;
-			this->edit->Click += gcnew System::EventHandler(this, &MyForm::edit_Click);
+			this->groupBox1->Controls->Add(this->mesh_zoom_in);
+			this->groupBox1->Controls->Add(this->mesh_zoom_out);
+			this->groupBox1->Controls->Add(this->zoom_in);
+			this->groupBox1->Controls->Add(this->move_right);
+			this->groupBox1->Controls->Add(this->zoom_out);
+			this->groupBox1->Controls->Add(this->move_left);
+			this->groupBox1->Controls->Add(this->rotate);
+			this->groupBox1->Location = System::Drawing::Point(12, 171);
+			this->groupBox1->Name = L"groupBox1";
+			this->groupBox1->Size = System::Drawing::Size(180, 272);
+			this->groupBox1->TabIndex = 18;
+			this->groupBox1->TabStop = false;
+			this->groupBox1->Text = L"groupBox1";
 			// 
 			// mesh_zoom_in
 			// 
 			this->mesh_zoom_in->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"mesh_zoom_in.BackgroundImage")));
 			this->mesh_zoom_in->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Zoom;
-			this->mesh_zoom_in->Location = System::Drawing::Point(25, 100);
+			this->mesh_zoom_in->Location = System::Drawing::Point(18, 31);
 			this->mesh_zoom_in->Name = L"mesh_zoom_in";
 			this->mesh_zoom_in->Size = System::Drawing::Size(50, 50);
 			this->mesh_zoom_in->TabIndex = 13;
@@ -386,18 +364,137 @@ namespace OpenMesh_EX {
 			// 
 			this->mesh_zoom_out->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"mesh_zoom_out.BackgroundImage")));
 			this->mesh_zoom_out->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Zoom;
-			this->mesh_zoom_out->Location = System::Drawing::Point(120, 100);
+			this->mesh_zoom_out->Location = System::Drawing::Point(122, 31);
 			this->mesh_zoom_out->Name = L"mesh_zoom_out";
 			this->mesh_zoom_out->Size = System::Drawing::Size(50, 50);
 			this->mesh_zoom_out->TabIndex = 14;
 			this->mesh_zoom_out->UseVisualStyleBackColor = true;
 			this->mesh_zoom_out->Click += gcnew System::EventHandler(this, &MyForm::mesh_zoom_out_Click);
 			// 
+			// zoom_in
+			// 
+			this->zoom_in->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"zoom_in.BackgroundImage")));
+			this->zoom_in->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Zoom;
+			this->zoom_in->Location = System::Drawing::Point(18, 104);
+			this->zoom_in->Name = L"zoom_in";
+			this->zoom_in->Size = System::Drawing::Size(50, 50);
+			this->zoom_in->TabIndex = 7;
+			this->zoom_in->UseVisualStyleBackColor = true;
+			this->zoom_in->Click += gcnew System::EventHandler(this, &MyForm::zoom_in_Click);
+			// 
+			// move_right
+			// 
+			this->move_right->Location = System::Drawing::Point(122, 216);
+			this->move_right->Name = L"move_right";
+			this->move_right->Size = System::Drawing::Size(50, 50);
+			this->move_right->TabIndex = 11;
+			this->move_right->Text = L"➤";
+			this->move_right->UseVisualStyleBackColor = true;
+			this->move_right->Click += gcnew System::EventHandler(this, &MyForm::move_right_Click);
+			// 
+			// zoom_out
+			// 
+			this->zoom_out->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"zoom_out.BackgroundImage")));
+			this->zoom_out->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Zoom;
+			this->zoom_out->Location = System::Drawing::Point(122, 104);
+			this->zoom_out->Name = L"zoom_out";
+			this->zoom_out->Size = System::Drawing::Size(50, 50);
+			this->zoom_out->TabIndex = 8;
+			this->zoom_out->UseVisualStyleBackColor = true;
+			this->zoom_out->Click += gcnew System::EventHandler(this, &MyForm::zoom_out_Click);
+			// 
+			// move_left
+			// 
+			this->move_left->Location = System::Drawing::Point(18, 216);
+			this->move_left->Name = L"move_left";
+			this->move_left->Size = System::Drawing::Size(50, 50);
+			this->move_left->TabIndex = 10;
+			this->move_left->Text = L"⇦";
+			this->move_left->TextImageRelation = System::Windows::Forms::TextImageRelation::ImageBeforeText;
+			this->move_left->UseVisualStyleBackColor = true;
+			this->move_left->Click += gcnew System::EventHandler(this, &MyForm::move_left_Click);
+			// 
+			// rotate
+			// 
+			this->rotate->Location = System::Drawing::Point(57, 176);
+			this->rotate->Name = L"rotate";
+			this->rotate->Size = System::Drawing::Size(75, 23);
+			this->rotate->TabIndex = 9;
+			this->rotate->Text = L"↪";
+			this->rotate->UseVisualStyleBackColor = true;
+			this->rotate->Click += gcnew System::EventHandler(this, &MyForm::rotate_Click);
+			// 
+			// checkBox1
+			// 
+			this->checkBox1->AutoSize = true;
+			this->checkBox1->Location = System::Drawing::Point(69, 539);
+			this->checkBox1->Name = L"checkBox1";
+			this->checkBox1->Size = System::Drawing::Size(63, 16);
+			this->checkBox1->TabIndex = 17;
+			this->checkBox1->Text = L"show uv";
+			this->checkBox1->UseVisualStyleBackColor = true;
+			this->checkBox1->CheckedChanged += gcnew System::EventHandler(this, &MyForm::checkBox1_CheckedChanged);
+			// 
+			// button3
+			// 
+			this->button3->BackColor = System::Drawing::SystemColors::ButtonFace;
+			this->button3->Location = System::Drawing::Point(134, 93);
+			this->button3->Name = L"button3";
+			this->button3->Size = System::Drawing::Size(50, 50);
+			this->button3->TabIndex = 16;
+			this->button3->Text = L"finished";
+			this->button3->UseVisualStyleBackColor = false;
+			this->button3->Click += gcnew System::EventHandler(this, &MyForm::button3_Click);
+			// 
+			// button2
+			// 
+			this->button2->BackColor = System::Drawing::SystemColors::ButtonFace;
+			this->button2->Location = System::Drawing::Point(30, 93);
+			this->button2->Name = L"button2";
+			this->button2->Size = System::Drawing::Size(50, 50);
+			this->button2->TabIndex = 15;
+			this->button2->Text = L"select_area";
+			this->button2->UseVisualStyleBackColor = false;
+			this->button2->Click += gcnew System::EventHandler(this, &MyForm::button2_Click);
+			// 
+			// edit
+			// 
+			this->edit->BackColor = System::Drawing::SystemColors::ButtonFace;
+			this->edit->Location = System::Drawing::Point(82, 25);
+			this->edit->Name = L"edit";
+			this->edit->Size = System::Drawing::Size(50, 50);
+			this->edit->TabIndex = 6;
+			this->edit->Text = L"edit";
+			this->edit->TextImageRelation = System::Windows::Forms::TextImageRelation::TextAboveImage;
+			this->edit->UseVisualStyleBackColor = false;
+			this->edit->Click += gcnew System::EventHandler(this, &MyForm::edit_Click);
+			// 
+			// button4
+			// 
+			this->button4->Location = System::Drawing::Point(644, 0);
+			this->button4->Name = L"button4";
+			this->button4->Size = System::Drawing::Size(75, 23);
+			this->button4->TabIndex = 6;
+			this->button4->Text = L"paste on";
+			this->button4->UseVisualStyleBackColor = true;
+			this->button4->Click += gcnew System::EventHandler(this, &MyForm::button4_Click);
+			// 
+			// groupBox2
+			// 
+			this->groupBox2->Controls->Add(this->pictureBox1);
+			this->groupBox2->Location = System::Drawing::Point(14, 171);
+			this->groupBox2->Name = L"groupBox2";
+			this->groupBox2->Size = System::Drawing::Size(174, 417);
+			this->groupBox2->TabIndex = 3;
+			this->groupBox2->TabStop = false;
+			this->groupBox2->Text = L"groupBox2";
+			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 12);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(800, 624);
+			this->Controls->Add(this->button4);
 			this->Controls->Add(this->panel2);
 			this->Controls->Add(this->panel1);
 			this->Controls->Add(this->button1);
@@ -411,8 +508,12 @@ namespace OpenMesh_EX {
 			this->menuStrip1->PerformLayout();
 			this->panel1->ResumeLayout(false);
 			this->panel1->PerformLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown1))->EndInit();
 			this->panel2->ResumeLayout(false);
+			this->panel2->PerformLayout();
+			this->groupBox1->ResumeLayout(false);
+			this->groupBox2->ResumeLayout(false);
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -785,32 +886,7 @@ namespace OpenMesh_EX {
 			//std::cout << "selectionMode=" << selectionMode << std::endl;
 			hkoglPanelControl1->Invalidate();
 			//e.Handled = true;
-		}
-		else if (e->KeyChar == '4') {
-			if (faceID != 0 && selectionMode == 1)
-			{
-				model.AddSelectedFacefinished();
-				light = false;
-				//std::cout << "faceID" << faceID << std::endl;					
-			}
-			//std::cout << "selectionMode=" << selectionMode << std::endl;
-			hkoglPanelControl1->Invalidate();
-			//e.Handled = true;
-		}
-		else if (e->KeyChar == '5') {
-
-			render_tex = true;
-
-			hkoglPanelControl1->Invalidate();
-		}	
-		else if (e->KeyChar == '6') {
-
-			render_tex = false;
-			hkoglPanelControl1->Invalidate();
-		}
-
-
-
+		}		
 	}
 			 //按下load model選單
 	private: System::Void loadModelToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
@@ -904,6 +980,7 @@ namespace OpenMesh_EX {
 		windowWidth = this->Size.Width;
 		glewInit();
 		pickingTexture.Init(windowWidth, windowHeight);
+		hkoglPanelControl1->Invalidate();
 
 	}
 
@@ -921,6 +998,7 @@ namespace OpenMesh_EX {
 	private: System::Void openFileDialog1_FileOk(System::Object^  sender, System::ComponentModel::CancelEventArgs^  e) {
 
 		std::string filename;
+
 		MarshalString(openFileDialog1->FileName, filename);
 
 		std::cout << filename << std::endl;
@@ -948,10 +1026,9 @@ namespace OpenMesh_EX {
 	
 		model.create_mesh();
 		std::cout << "create mesh" << std::endl;
-		textBox1->Text = "" + model.model.mesh_tex.size() ;
-
+		textBox1->Text = "" + model.model.mesh_tex.size() ;	
+		pictureBox1->Image = System::Drawing::Image::FromFile(openFileDialog1->FileName);
 		hkoglPanelControl1->Invalidate();
-
 	}
 	private: System::Void numericUpDown1_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
 
@@ -970,12 +1047,16 @@ namespace OpenMesh_EX {
 			edit_mode = true;
 			model.edit = true;
 			model.edit_mode = true;
+			model.face_num();
 		}
 		else if (edit_mode == true)
 		{
 			edit_mode = false;
 			model.edit = false;
 			model.edit_mode = false;
+			model.edit_num = 1;
+			model.boundary.clear();
+			model.origin_face_num = 0;
 		}
 		hkoglPanelControl1->Invalidate();
 	}
@@ -1012,5 +1093,44 @@ namespace OpenMesh_EX {
 		model.decrease_face();
 		hkoglPanelControl1->Invalidate();
 	}
+private: System::Void button2_Click(System::Object^  sender, System::EventArgs^  e) {
+	//edit_num = 2;
+	model.edit_num = 2;
+	hkoglPanelControl1->Invalidate();
+
+}
+private: System::Void button3_Click(System::Object^  sender, System::EventArgs^  e) {
+
+	//edit_num = 3;
+	model.edit_num = 3;
+	model.other_mesh_increase();
+	hkoglPanelControl1->Invalidate();
+}
+private: System::Void checkBox1_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
+
+	if (checkBox1->Checked)
+	{
+		render_tex = true;
+	}
+	else
+	{
+		render_tex = false;
+	}
+	hkoglPanelControl1->Invalidate();
+}
+private: System::Void button4_Click(System::Object^  sender, System::EventArgs^  e) {
+	if (faceID != 0 && selectionMode == 1)
+	{
+		model.AddSelectedFacefinished();
+		light = false;			
+	}
+	hkoglPanelControl1->Invalidate();
+}
+
+
+		 
+private: System::Void pictureBox1_Click(System::Object^  sender, System::EventArgs^  e) {
+	
+}
 };
 }
