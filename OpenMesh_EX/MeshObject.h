@@ -58,6 +58,11 @@ private:
 //	int mesh_id;
 //	std::vector<unsigned int> mesh_face;
 //};
+struct Mesh_tex_record {
+	int mesh_id;
+	std::vector<float> x;
+	std::vector<float> y;
+};
 class MeshObject
 {
 public:
@@ -100,9 +105,10 @@ public:
 	void other_mesh_increase();
 	void other_mesh_increase_face();
 	void new_mesh_info();
-	//std::vector<struct mesh_record> mesh_record;
+	std::vector<struct Mesh_tex_record> mesh_record;
 	std::vector<unsigned int> boundary;
 	void face_num();
+	void save_tex_info(std::string, std::vector<GLuint>);
 	int origin_face_num=0;
 private:
 	

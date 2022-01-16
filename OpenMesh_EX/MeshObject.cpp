@@ -286,7 +286,6 @@ bool MeshObject::Init(std::string fileName)
 bool MeshObject::End(std::string fileName)
 {
 	//selectedFace.clear();
-
 	return model.SaveModel(fileName);
 }
 
@@ -784,8 +783,7 @@ void MeshObject::step4()
 	std::cout << "linearSolver time  " << start - end << std::endl;
 	VectorXd X = linearSolver.solve(B);
 	VectorXd Y = linearSolver.solve(C);
-	//std::cout << X << std::endl;
-	//std::cout << Y << std::endl;
+	
 	//把算出的點存回 property(v_2d)
 	for (int i = 0; i < X.size(); i++)
 	{
@@ -797,12 +795,27 @@ void MeshObject::step4()
 			}
 		}
 	}
+	struct Mesh_tex_record record;
 	//最後點的位置
 	for (MyMesh::VertexIter v_it = model.mesh2.vertices_begin(); v_it != model.mesh2.vertices_end(); ++v_it)
 	{
 		//std::cout << "FINAL============================================FINAL" << std::endl;
 		//std::cout<<"第 "<< v_it<<" 個點位置 "<<model.mesh2.property(v_2d, *v_it)<<std::endl ;
+		
+		record.mesh_id = mesh_id;
+		record.x.push_back(model.mesh2.property(v_2d, *v_it)[0]);
+		//std::cout << "第 " << v_it << " 個點位置 " << model.mesh2.property(v_2d, *v_it)[0] << std::endl;
+		record.y.push_back(model.mesh2.property(v_2d, *v_it)[1]);
+		//std::cout << "第 " << v_it << " 個點位置 " << model.mesh2.property(v_2d, *v_it)[1] << std::endl;					
 	}
+	if(mesh_id==0)
+		mesh_record.push_back(record);
+	else if(mesh_id < model.mesh_tex.size())
+		mesh_record[mesh_id] = record;
+	else if (mesh_id >= model.mesh_tex.size())
+		mesh_record.push_back(record);
+	std::cout << " 點 " << mesh_record.size() << std::endl;
+	std::cout << "第 "<< " 個點 " << mesh_record[mesh_id].x.size() << std::endl;
 	funx_total_final.clear();
 	funy_total_final.clear();
 	funweight_total_final.clear();
@@ -960,7 +973,7 @@ void MeshObject::LoadToShader2()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(OpenMesh::Vec2f) * texture2.size(), &texture2[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(2);
-
+	std::cout << "mesh_texure: "<<mesh_texure[mesh_id] << std::endl;
 
 	glGenBuffers(1, &mesh_ebo[mesh_id]);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_ebo[mesh_id]);
@@ -1292,6 +1305,11 @@ void MeshObject::other_mesh_increase_face()
 	face_id.clear();
 	AddSelectedFacefinished();
 
+}
+
+void MeshObject::save_tex_info(std::string filename, std::vector<GLuint> id)
+{
+	
 }
 float MeshObject::cotan(OpenMesh::Vec3f a, OpenMesh::Vec3f b) {
 	return (a | b) / (a%b).norm();

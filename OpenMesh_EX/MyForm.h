@@ -132,6 +132,10 @@ namespace OpenMesh_EX {
 	private: System::Windows::Forms::Button^  button4;
 	private: System::Windows::Forms::PictureBox^  pictureBox1;
 	private: System::Windows::Forms::GroupBox^  groupBox2;
+	private: System::Windows::Forms::Button^  reset;
+	private: System::Windows::Forms::ToolStripMenuItem^  loadTextureToolStripMenuItem;
+	private: System::Windows::Forms::OpenFileDialog^  openTexFileDialog;
+
 
 
 	
@@ -158,12 +162,13 @@ namespace OpenMesh_EX {
 		void InitializeComponent(void)
 		{
 			System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
-			HKOGLPanel::HKCOGLPanelCameraSetting^  hkcoglPanelCameraSetting3 = (gcnew HKOGLPanel::HKCOGLPanelCameraSetting());
-			HKOGLPanel::HKCOGLPanelPixelFormat^  hkcoglPanelPixelFormat3 = (gcnew HKOGLPanel::HKCOGLPanelPixelFormat());
+			HKOGLPanel::HKCOGLPanelCameraSetting^  hkcoglPanelCameraSetting1 = (gcnew HKOGLPanel::HKCOGLPanelCameraSetting());
+			HKOGLPanel::HKCOGLPanelPixelFormat^  hkcoglPanelPixelFormat1 = (gcnew HKOGLPanel::HKCOGLPanelPixelFormat());
 			this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
 			this->fileToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->loadModelToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->saveModelToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->loadTextureToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->openModelDialog = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->saveModelDialog = (gcnew System::Windows::Forms::SaveFileDialog());
 			this->hkoglPanelControl1 = (gcnew HKOGLPanel::HKOGLPanelControl());
@@ -171,11 +176,13 @@ namespace OpenMesh_EX {
 			this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->colorDialog1 = (gcnew System::Windows::Forms::ColorDialog());
 			this->panel1 = (gcnew System::Windows::Forms::Panel());
+			this->groupBox2 = (gcnew System::Windows::Forms::GroupBox());
 			this->pictureBox1 = (gcnew System::Windows::Forms::PictureBox());
 			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
 			this->numericUpDown1 = (gcnew System::Windows::Forms::NumericUpDown());
 			this->panel2 = (gcnew System::Windows::Forms::Panel());
 			this->groupBox1 = (gcnew System::Windows::Forms::GroupBox());
+			this->reset = (gcnew System::Windows::Forms::Button());
 			this->mesh_zoom_in = (gcnew System::Windows::Forms::Button());
 			this->mesh_zoom_out = (gcnew System::Windows::Forms::Button());
 			this->zoom_in = (gcnew System::Windows::Forms::Button());
@@ -188,14 +195,13 @@ namespace OpenMesh_EX {
 			this->button2 = (gcnew System::Windows::Forms::Button());
 			this->edit = (gcnew System::Windows::Forms::Button());
 			this->button4 = (gcnew System::Windows::Forms::Button());
-			this->groupBox2 = (gcnew System::Windows::Forms::GroupBox());
+			this->openTexFileDialog = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->menuStrip1->SuspendLayout();
 			this->panel1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown1))->BeginInit();
 			this->panel2->SuspendLayout();
 			this->groupBox1->SuspendLayout();
-			this->groupBox2->SuspendLayout();
 			this->SuspendLayout();
 			// 
 			// menuStrip1
@@ -209,9 +215,9 @@ namespace OpenMesh_EX {
 			// 
 			// fileToolStripMenuItem
 			// 
-			this->fileToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
+			this->fileToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {
 				this->loadModelToolStripMenuItem,
-					this->saveModelToolStripMenuItem
+					this->saveModelToolStripMenuItem, this->loadTextureToolStripMenuItem
 			});
 			this->fileToolStripMenuItem->Name = L"fileToolStripMenuItem";
 			this->fileToolStripMenuItem->Size = System::Drawing::Size(38, 20);
@@ -220,16 +226,23 @@ namespace OpenMesh_EX {
 			// loadModelToolStripMenuItem
 			// 
 			this->loadModelToolStripMenuItem->Name = L"loadModelToolStripMenuItem";
-			this->loadModelToolStripMenuItem->Size = System::Drawing::Size(144, 22);
+			this->loadModelToolStripMenuItem->Size = System::Drawing::Size(180, 22);
 			this->loadModelToolStripMenuItem->Text = L"Load Model";
 			this->loadModelToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::loadModelToolStripMenuItem_Click);
 			// 
 			// saveModelToolStripMenuItem
 			// 
 			this->saveModelToolStripMenuItem->Name = L"saveModelToolStripMenuItem";
-			this->saveModelToolStripMenuItem->Size = System::Drawing::Size(144, 22);
+			this->saveModelToolStripMenuItem->Size = System::Drawing::Size(180, 22);
 			this->saveModelToolStripMenuItem->Text = L"Save Model";
 			this->saveModelToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::saveModelToolStripMenuItem_Click);
+			// 
+			// loadTextureToolStripMenuItem
+			// 
+			this->loadTextureToolStripMenuItem->Name = L"loadTextureToolStripMenuItem";
+			this->loadTextureToolStripMenuItem->Size = System::Drawing::Size(180, 22);
+			this->loadTextureToolStripMenuItem->Text = L"Load Texture";
+			this->loadTextureToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::loadTextureToolStripMenuItem_Click);
 			// 
 			// openModelDialog
 			// 
@@ -244,20 +257,21 @@ namespace OpenMesh_EX {
 			// 
 			this->hkoglPanelControl1->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"hkoglPanelControl1.BackgroundImage")));
 			this->hkoglPanelControl1->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Zoom;
-			hkcoglPanelCameraSetting3->Far = 1000;
-			hkcoglPanelCameraSetting3->Fov = 45;
-			hkcoglPanelCameraSetting3->Near = -1000;
-			hkcoglPanelCameraSetting3->Type = HKOGLPanel::HKCOGLPanelCameraSetting::CAMERATYPE::ORTHOGRAPHIC;
-			this->hkoglPanelControl1->Camera_Setting = hkcoglPanelCameraSetting3;
+			hkcoglPanelCameraSetting1->Far = 1000;
+			hkcoglPanelCameraSetting1->Fov = 45;
+			hkcoglPanelCameraSetting1->Near = -1000;
+			hkcoglPanelCameraSetting1->Type = HKOGLPanel::HKCOGLPanelCameraSetting::CAMERATYPE::ORTHOGRAPHIC;
+			this->hkoglPanelControl1->Camera_Setting = hkcoglPanelCameraSetting1;
 			this->hkoglPanelControl1->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->hkoglPanelControl1->Location = System::Drawing::Point(0, 24);
 			this->hkoglPanelControl1->Name = L"hkoglPanelControl1";
-			hkcoglPanelPixelFormat3->Accumu_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
-			hkcoglPanelPixelFormat3->Alpha_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
-			hkcoglPanelPixelFormat3->Stencil_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
-			this->hkoglPanelControl1->Pixel_Format = hkcoglPanelPixelFormat3;
+			hkcoglPanelPixelFormat1->Accumu_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
+			hkcoglPanelPixelFormat1->Alpha_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
+			hkcoglPanelPixelFormat1->Stencil_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
+			this->hkoglPanelControl1->Pixel_Format = hkcoglPanelPixelFormat1;
 			this->hkoglPanelControl1->Size = System::Drawing::Size(800, 600);
 			this->hkoglPanelControl1->TabIndex = 2;
+			this->hkoglPanelControl1->Tag = L"-1";
 			this->hkoglPanelControl1->Load += gcnew System::EventHandler(this, &MyForm::hkoglPanelControl1_Load);
 			this->hkoglPanelControl1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MyForm::hkoglPanelControl1_Paint);
 			this->hkoglPanelControl1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MyForm::hkoglPanelControl1_KeyPress);
@@ -269,13 +283,14 @@ namespace OpenMesh_EX {
 			// button1
 			// 
 			this->button1->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Right));
+			this->button1->BackColor = System::Drawing::SystemColors::Control;
 			this->button1->ImageAlign = System::Drawing::ContentAlignment::TopRight;
 			this->button1->Location = System::Drawing::Point(725, 0);
 			this->button1->Name = L"button1";
 			this->button1->Size = System::Drawing::Size(75, 23);
 			this->button1->TabIndex = 3;
 			this->button1->Text = L"create texture";
-			this->button1->UseVisualStyleBackColor = true;
+			this->button1->UseVisualStyleBackColor = false;
 			this->button1->Click += gcnew System::EventHandler(this, &MyForm::button1_Click);
 			// 
 			// openFileDialog1
@@ -286,6 +301,7 @@ namespace OpenMesh_EX {
 			// panel1
 			// 
 			this->panel1->Controls->Add(this->groupBox2);
+			this->panel1->Controls->Add(this->pictureBox1);
 			this->panel1->Controls->Add(this->textBox1);
 			this->panel1->Controls->Add(this->numericUpDown1);
 			this->panel1->Dock = System::Windows::Forms::DockStyle::Right;
@@ -294,15 +310,27 @@ namespace OpenMesh_EX {
 			this->panel1->Size = System::Drawing::Size(200, 600);
 			this->panel1->TabIndex = 4;
 			// 
+			// groupBox2
+			// 
+			this->groupBox2->AutoSize = true;
+			this->groupBox2->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
+			this->groupBox2->Location = System::Drawing::Point(14, 171);
+			this->groupBox2->Name = L"groupBox2";
+			this->groupBox2->Size = System::Drawing::Size(6, 5);
+			this->groupBox2->TabIndex = 3;
+			this->groupBox2->TabStop = false;
+			this->groupBox2->Text = L"groupBox2";
+			// 
 			// pictureBox1
 			// 
 			this->pictureBox1->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Zoom;
-			this->pictureBox1->Location = System::Drawing::Point(30, 31);
+			this->pictureBox1->Location = System::Drawing::Point(53, 104);
 			this->pictureBox1->Name = L"pictureBox1";
 			this->pictureBox1->Size = System::Drawing::Size(100, 50);
 			this->pictureBox1->SizeMode = System::Windows::Forms::PictureBoxSizeMode::Zoom;
 			this->pictureBox1->TabIndex = 2;
 			this->pictureBox1->TabStop = false;
+			this->pictureBox1->Tag = L"-1";
 			this->pictureBox1->Click += gcnew System::EventHandler(this, &MyForm::pictureBox1_Click);
 			// 
 			// textBox1
@@ -335,6 +363,7 @@ namespace OpenMesh_EX {
 			// 
 			// groupBox1
 			// 
+			this->groupBox1->Controls->Add(this->reset);
 			this->groupBox1->Controls->Add(this->mesh_zoom_in);
 			this->groupBox1->Controls->Add(this->mesh_zoom_out);
 			this->groupBox1->Controls->Add(this->zoom_in);
@@ -344,10 +373,21 @@ namespace OpenMesh_EX {
 			this->groupBox1->Controls->Add(this->rotate);
 			this->groupBox1->Location = System::Drawing::Point(12, 171);
 			this->groupBox1->Name = L"groupBox1";
-			this->groupBox1->Size = System::Drawing::Size(180, 272);
+			this->groupBox1->Size = System::Drawing::Size(180, 395);
 			this->groupBox1->TabIndex = 18;
 			this->groupBox1->TabStop = false;
 			this->groupBox1->Text = L"groupBox1";
+			// 
+			// reset
+			// 
+			this->reset->BackColor = System::Drawing::SystemColors::ButtonFace;
+			this->reset->Location = System::Drawing::Point(70, 328);
+			this->reset->Name = L"reset";
+			this->reset->Size = System::Drawing::Size(50, 50);
+			this->reset->TabIndex = 15;
+			this->reset->Text = L"reset";
+			this->reset->UseVisualStyleBackColor = false;
+			this->reset->Click += gcnew System::EventHandler(this, &MyForm::reset_Click);
 			// 
 			// mesh_zoom_in
 			// 
@@ -384,11 +424,14 @@ namespace OpenMesh_EX {
 			// 
 			// move_right
 			// 
-			this->move_right->Location = System::Drawing::Point(122, 216);
+			this->move_right->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"move_right.BackgroundImage")));
+			this->move_right->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Zoom;
+			this->move_right->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"move_right.Image")));
+			this->move_right->ImageAlign = System::Drawing::ContentAlignment::TopCenter;
+			this->move_right->Location = System::Drawing::Point(122, 255);
 			this->move_right->Name = L"move_right";
 			this->move_right->Size = System::Drawing::Size(50, 50);
 			this->move_right->TabIndex = 11;
-			this->move_right->Text = L"➤";
 			this->move_right->UseVisualStyleBackColor = true;
 			this->move_right->Click += gcnew System::EventHandler(this, &MyForm::move_right_Click);
 			// 
@@ -405,20 +448,21 @@ namespace OpenMesh_EX {
 			// 
 			// move_left
 			// 
-			this->move_left->Location = System::Drawing::Point(18, 216);
+			this->move_left->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"move_left.BackgroundImage")));
+			this->move_left->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Zoom;
+			this->move_left->Location = System::Drawing::Point(18, 255);
 			this->move_left->Name = L"move_left";
 			this->move_left->Size = System::Drawing::Size(50, 50);
 			this->move_left->TabIndex = 10;
-			this->move_left->Text = L"⇦";
 			this->move_left->TextImageRelation = System::Windows::Forms::TextImageRelation::ImageBeforeText;
 			this->move_left->UseVisualStyleBackColor = true;
 			this->move_left->Click += gcnew System::EventHandler(this, &MyForm::move_left_Click);
 			// 
 			// rotate
 			// 
-			this->rotate->Location = System::Drawing::Point(57, 176);
+			this->rotate->Location = System::Drawing::Point(70, 182);
 			this->rotate->Name = L"rotate";
-			this->rotate->Size = System::Drawing::Size(75, 23);
+			this->rotate->Size = System::Drawing::Size(50, 50);
 			this->rotate->TabIndex = 9;
 			this->rotate->Text = L"↪";
 			this->rotate->UseVisualStyleBackColor = true;
@@ -427,7 +471,7 @@ namespace OpenMesh_EX {
 			// checkBox1
 			// 
 			this->checkBox1->AutoSize = true;
-			this->checkBox1->Location = System::Drawing::Point(69, 539);
+			this->checkBox1->Location = System::Drawing::Point(69, 572);
 			this->checkBox1->Name = L"checkBox1";
 			this->checkBox1->Size = System::Drawing::Size(63, 16);
 			this->checkBox1->TabIndex = 17;
@@ -471,28 +515,26 @@ namespace OpenMesh_EX {
 			// 
 			// button4
 			// 
+			this->button4->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Right));
+			this->button4->BackColor = System::Drawing::SystemColors::Control;
 			this->button4->Location = System::Drawing::Point(644, 0);
 			this->button4->Name = L"button4";
 			this->button4->Size = System::Drawing::Size(75, 23);
 			this->button4->TabIndex = 6;
 			this->button4->Text = L"paste on";
-			this->button4->UseVisualStyleBackColor = true;
+			this->button4->UseVisualStyleBackColor = false;
 			this->button4->Click += gcnew System::EventHandler(this, &MyForm::button4_Click);
 			// 
-			// groupBox2
+			// openTexFileDialog
 			// 
-			this->groupBox2->Controls->Add(this->pictureBox1);
-			this->groupBox2->Location = System::Drawing::Point(14, 171);
-			this->groupBox2->Name = L"groupBox2";
-			this->groupBox2->Size = System::Drawing::Size(174, 417);
-			this->groupBox2->TabIndex = 3;
-			this->groupBox2->TabStop = false;
-			this->groupBox2->Text = L"groupBox2";
+			this->openTexFileDialog->FileOk += gcnew System::ComponentModel::CancelEventHandler(this, &MyForm::openTexFileDialog_FileOk);
 			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 12);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+			this->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"$this.BackgroundImage")));
+			this->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Zoom;
 			this->ClientSize = System::Drawing::Size(800, 624);
 			this->Controls->Add(this->button4);
 			this->Controls->Add(this->panel2);
@@ -500,6 +542,7 @@ namespace OpenMesh_EX {
 			this->Controls->Add(this->button1);
 			this->Controls->Add(this->hkoglPanelControl1);
 			this->Controls->Add(this->menuStrip1);
+			this->DoubleBuffered = true;
 			this->MainMenuStrip = this->menuStrip1;
 			this->Name = L"MyForm";
 			this->Text = L"OpenMesh_EX";
@@ -513,7 +556,6 @@ namespace OpenMesh_EX {
 			this->panel2->ResumeLayout(false);
 			this->panel2->PerformLayout();
 			this->groupBox1->ResumeLayout(false);
-			this->groupBox2->ResumeLayout(false);
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -921,17 +963,61 @@ namespace OpenMesh_EX {
 			 //按下save model選單
 	private: System::Void saveModelToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
 	{
-		saveModelDialog->Filter = "Model(*.obj)|*obj";
+		//saveModelDialog->Filter = "Model(*.obj)|*obj";
+		saveModelDialog->Filter = "文字檔案(*.txt)|*.txt";
 		saveModelDialog->ShowDialog();
 	}
 			 //輸出檔案
 	private: System::Void saveModelDialog_FileOk(System::Object^  sender, System::ComponentModel::CancelEventArgs^  e)
 	{
 		std::string filename;
-		MarshalString(saveModelDialog->FileName, filename);
-		model.End(filename);
-		//if (SaveFile(filename, mesh))
-			//std::cout << filename << std::endl;
+		MarshalString(saveModelDialog->FileName, filename);			
+		//model.save_tex_info(filename,id);
+		std::fstream outFile;
+		outFile.open(filename, std::ios_base::trunc | std::ios_base::out);
+		if (!outFile)
+		{
+			std::cout << "Files is not opened!" << std::endl;
+			exit(1);
+		}
+
+		for (int i = 0; i < model.model.mesh_tex.size(); i++)
+		{
+			
+			for (MyMesh::FaceIter f_it = model.model.mesh_tex[i].faces_begin(); f_it != model.model.mesh_tex[i].faces_end(); ++f_it)
+			{
+				for (MyMesh::FaceVertexIter fv_it = model.model.mesh_tex[i].fv_iter(*f_it); fv_it.is_valid(); ++fv_it)
+				{
+
+					MyMesh::Point p1 = model.model.mesh_tex[i].point(*fv_it);
+					std::cout << "p1: " << p1 << std::endl;
+					++fv_it;
+					MyMesh::Point p2 = model.model.mesh_tex[i].point(*fv_it);
+					std::cout << "p2: " << p2 << std::endl;
+					++fv_it;
+					MyMesh::Point p3 = model.model.mesh_tex[i].point(*fv_it);
+					std::cout << "p3: " << p3 << std::endl;
+					int FaceId = model.model.mesh.FindFace(p1, p2, p3);
+					std::cout << "FaceId: " << FaceId << std::endl;
+					outFile << FaceId <<"\n";
+				}
+			}
+			std::cout << "pass 1: "<< model.model.mesh_tex.size() << std::endl;
+
+			for (int j = 0; j < model.mesh_record[i].x.size(); j++)
+			{
+				outFile << model.mesh_record[i].x[j]<< " ";
+				std::cout << "x: " << model.mesh_record[i].x[j] << std::endl;
+				outFile << model.mesh_record[i].y[j]<< "\n";
+				std::cout << "y: " << model.mesh_record[i].y[j] << std::endl;
+			}
+			std::cout << "pass 2: "<< model.mesh_record[i].x.size() << std::endl;
+			outFile << i<<"\n";
+			std::cout << "pass 3" << std::endl;
+		}
+
+		outFile.close();
+		//model.End(filename);
 		hkoglPanelControl1->Invalidate();
 	}
 	private: System::Void SelectionHandler(unsigned int x, unsigned int y)
@@ -1027,7 +1113,20 @@ namespace OpenMesh_EX {
 		model.create_mesh();
 		std::cout << "create mesh" << std::endl;
 		textBox1->Text = "" + model.model.mesh_tex.size() ;	
+		//PictureBox pic;
+		//pic.Size= System::Drawing::Size(100, 50);
+		//pic.Image = System::Drawing::Image::FromFile(openFileDialog1->FileName);
+		int now = id.size() - 1;
+		pictureBox1 = gcnew PictureBox;
+		pictureBox1->Name = ""+ (now);
+		pictureBox1->Tag = id.size()-1;
+		pictureBox1->Location = Point(10, 20+1* ((id.size()-1)*120));
+		pictureBox1->SizeMode = System::Windows::Forms::PictureBoxSizeMode::Zoom;
+		pictureBox1->Size = System::Drawing::Size(100, 100);
 		pictureBox1->Image = System::Drawing::Image::FromFile(openFileDialog1->FileName);
+		this->pictureBox1->Click += gcnew System::EventHandler(this, &MyForm::pictureBox1_Click);
+		groupBox2->Controls->Add(this->pictureBox1);
+		
 		hkoglPanelControl1->Invalidate();
 	}
 	private: System::Void numericUpDown1_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
@@ -1093,44 +1192,79 @@ namespace OpenMesh_EX {
 		model.decrease_face();
 		hkoglPanelControl1->Invalidate();
 	}
-private: System::Void button2_Click(System::Object^  sender, System::EventArgs^  e) {
-	//edit_num = 2;
-	model.edit_num = 2;
-	hkoglPanelControl1->Invalidate();
+	private: System::Void button2_Click(System::Object^  sender, System::EventArgs^  e) {
+		//edit_num = 2;
+		model.edit_num = 2;
+		hkoglPanelControl1->Invalidate();
 
-}
-private: System::Void button3_Click(System::Object^  sender, System::EventArgs^  e) {
+	}
+	private: System::Void button3_Click(System::Object^  sender, System::EventArgs^  e) {
 
-	//edit_num = 3;
-	model.edit_num = 3;
-	model.other_mesh_increase();
-	hkoglPanelControl1->Invalidate();
-}
-private: System::Void checkBox1_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
+		//edit_num = 3;
+		model.edit_num = 3;
+		model.other_mesh_increase();
+		hkoglPanelControl1->Invalidate();
+	}
+	private: System::Void checkBox1_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
 
-	if (checkBox1->Checked)
-	{
-		render_tex = true;
+		if (checkBox1->Checked)
+		{
+			render_tex = true;
+		}
+		else
+		{
+			render_tex = false;
+		}
+		hkoglPanelControl1->Invalidate();
 	}
-	else
-	{
-		render_tex = false;
+	private: System::Void button4_Click(System::Object^  sender, System::EventArgs^  e) {
+		if (faceID != 0 && selectionMode == 1)
+		{
+			model.AddSelectedFacefinished();
+			light = false;			
+		}
+		hkoglPanelControl1->Invalidate();
 	}
-	hkoglPanelControl1->Invalidate();
-}
-private: System::Void button4_Click(System::Object^  sender, System::EventArgs^  e) {
-	if (faceID != 0 && selectionMode == 1)
-	{
-		model.AddSelectedFacefinished();
-		light = false;			
-	}
-	hkoglPanelControl1->Invalidate();
-}
 
 
 		 
-private: System::Void pictureBox1_Click(System::Object^  sender, System::EventArgs^  e) {
-	
+	private: System::Void pictureBox1_Click(System::Object^  sender, System::EventArgs^  e) {
+
+		std::string num;
+		MarshalString(pictureBox1->Name, num);
+		int num2 = stoi(num);
+		std::cout << num2 << std::endl;
+		//model.select_mesh(num);
+	}
+	private: System::Void reset_Click(System::Object^  sender, System::EventArgs^  e) {
+		rotation = 0.0f; 
+		scal = 0.0f; 
+		translat = 0.0f;
+	}
+private: System::Void loadTextureToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+
+	openModelDialog->Filter = "文字檔案(*.txt)|*.txt";
+	openModelDialog->Multiselect = false;
+	openModelDialog->ShowDialog();
+}
+private: System::Void openTexFileDialog_FileOk(System::Object^  sender, System::ComponentModel::CancelEventArgs^  e) {
+	std::string filename;
+	MarshalString(openModelDialog->FileName, filename);
+	std::ifstream ifs;
+	char buffer[100000] = { 0 };
+
+	ifs.open(filename);
+	if (!ifs.is_open()) {
+		std::cout << "Failed to open file.\n";
+	}
+	else {
+
+		while (!ifs.eof()) {
+			ifs.getline(buffer, sizeof(buffer));
+			std::cout << buffer << "\n";
+		}
+		ifs.close();
+	}
 }
 };
 }
