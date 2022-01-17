@@ -16,6 +16,7 @@
 //#include "Mesh/DP.h"
 //#include "Mesh/XForm.h"
 //#include "Mesh/GLCamera.h"
+#include <vector>
 
 //const std::string ProjectName = "OpenMesh_EX";
 glm::vec3 worldPos;
@@ -54,6 +55,7 @@ int tex_id = 0;
 bool edit_mode = false;
 int edit_num = 1;
 bool isloading = false;
+int num2;
 //xform xf;
 //GLCamera camera;
 //float fov = 0.7f;
@@ -136,17 +138,10 @@ namespace OpenMesh_EX {
 	private: System::Windows::Forms::Button^  reset;
 	private: System::Windows::Forms::ToolStripMenuItem^  loadTextureToolStripMenuItem;
 	private: System::Windows::Forms::OpenFileDialog^  openTexFileDialog;
-
-
-
-	
-
-
+	private: System::Windows::Forms::OpenFileDialog^  pictureBoxDialog;	
 	private: System::ComponentModel::IContainer^  components;
-
-
-
-
+	//array<PictureBox^> ^pic = gcnew array<PictureBox^>(10);
+	PictureBox^ pic_init;
 	protected:
 
 	private:
@@ -161,7 +156,7 @@ namespace OpenMesh_EX {
 		/// 這個方法的內容。
 		/// </summary>
 		void InitializeComponent(void)
-		{
+		{		
 			System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
 			HKOGLPanel::HKCOGLPanelCameraSetting^  hkcoglPanelCameraSetting1 = (gcnew HKOGLPanel::HKCOGLPanelCameraSetting());
 			HKOGLPanel::HKCOGLPanelPixelFormat^  hkcoglPanelPixelFormat1 = (gcnew HKOGLPanel::HKCOGLPanelPixelFormat());
@@ -197,6 +192,7 @@ namespace OpenMesh_EX {
 			this->edit = (gcnew System::Windows::Forms::Button());
 			this->button4 = (gcnew System::Windows::Forms::Button());
 			this->openTexFileDialog = (gcnew System::Windows::Forms::OpenFileDialog());
+			this->pictureBoxDialog = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->menuStrip1->SuspendLayout();
 			this->panel1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
@@ -227,21 +223,21 @@ namespace OpenMesh_EX {
 			// loadModelToolStripMenuItem
 			// 
 			this->loadModelToolStripMenuItem->Name = L"loadModelToolStripMenuItem";
-			this->loadModelToolStripMenuItem->Size = System::Drawing::Size(180, 22);
+			this->loadModelToolStripMenuItem->Size = System::Drawing::Size(148, 22);
 			this->loadModelToolStripMenuItem->Text = L"Load Model";
 			this->loadModelToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::loadModelToolStripMenuItem_Click);
 			// 
 			// saveModelToolStripMenuItem
 			// 
 			this->saveModelToolStripMenuItem->Name = L"saveModelToolStripMenuItem";
-			this->saveModelToolStripMenuItem->Size = System::Drawing::Size(180, 22);
+			this->saveModelToolStripMenuItem->Size = System::Drawing::Size(148, 22);
 			this->saveModelToolStripMenuItem->Text = L"Save Model";
 			this->saveModelToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::saveModelToolStripMenuItem_Click);
 			// 
 			// loadTextureToolStripMenuItem
 			// 
 			this->loadTextureToolStripMenuItem->Name = L"loadTextureToolStripMenuItem";
-			this->loadTextureToolStripMenuItem->Size = System::Drawing::Size(180, 22);
+			this->loadTextureToolStripMenuItem->Size = System::Drawing::Size(148, 22);
 			this->loadTextureToolStripMenuItem->Text = L"Load Texture";
 			this->loadTextureToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::loadTextureToolStripMenuItem_Click);
 			// 
@@ -529,6 +525,11 @@ namespace OpenMesh_EX {
 			// openTexFileDialog
 			// 
 			this->openTexFileDialog->FileOk += gcnew System::ComponentModel::CancelEventHandler(this, &MyForm::openTexFileDialog_FileOk);
+			// 
+			// pictureBoxDialog
+			// 
+			this->pictureBoxDialog->FileName = L"pictureBoxDialog";
+			this->pictureBoxDialog->FileOk += gcnew System::ComponentModel::CancelEventHandler(this, &MyForm::pictureBoxDialog_FileOk);
 			// 
 			// MyForm
 			// 
@@ -1081,10 +1082,7 @@ namespace OpenMesh_EX {
 
 	private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) {
 
-		openFileDialog1->Filter = "Image Files(*.PNG;*.JPG;*.GIF)|*.PNG;*.JPG;*.GIF|All files (*.*)|*.*";
-		
-		//openFileDialog1->Filter = "JPEG Files (*.jpg)|*.jpg|BMP Files (*.bmp)|*.bmp|All files (*.*)|*.*";
-
+		openFileDialog1->Filter = "Image Files(*.PNG;*.JPG;*.GIF)|*.PNG;*.JPG;*.GIF|All files (*.*)|*.*";		
 		openFileDialog1->ShowDialog();
 	}
 	private: System::Void openFileDialog1_FileOk(System::Object^  sender, System::ComponentModel::CancelEventArgs^  e) {
@@ -1119,19 +1117,26 @@ namespace OpenMesh_EX {
 		model.create_mesh();
 	
 		textBox1->Text = "" + model.model.mesh_tex.size() ;	
-		//PictureBox pic;
-		//pic.Size= System::Drawing::Size(100, 50);
-		//pic.Image = System::Drawing::Image::FromFile(openFileDialog1->FileName);
-		int now = id.size() - 1;
-		pictureBox1 = gcnew PictureBox;
-		pictureBox1->Name = ""+ (now);
-		pictureBox1->Tag = id.size()-1;
-		pictureBox1->Location = Point(10, 20+1* ((id.size()-1)*120));
-		pictureBox1->SizeMode = System::Windows::Forms::PictureBoxSizeMode::Zoom;
-		pictureBox1->Size = System::Drawing::Size(100, 100);
-		pictureBox1->Image = System::Drawing::Image::FromFile(openFileDialog1->FileName);
+		this->pictureBox1->Image = System::Drawing::Image::FromFile(openFileDialog1->FileName);
+		int now = model.mesh_id;	
+		this->pic_init = gcnew PictureBox;
+		this->pic_init->Name = "" + (now);
+		this->pic_init->Tag = id.size() - 1;
+		this->pic_init->Location = Point(10, 20 + 1 * ((id.size() - 1) * 120));
+		this->pic_init->SizeMode = System::Windows::Forms::PictureBoxSizeMode::Zoom;
+		this->pic_init->Size = System::Drawing::Size(100, 100);
+		this->pic_init->Image = System::Drawing::Image::FromFile(openFileDialog1->FileName);
+		this->pic_init->Click += gcnew System::EventHandler(this, &MyForm::pic_Click);
+		groupBox2->Controls->Add(this->pic_init);
+		/*this->pictureBox1 = gcnew PictureBox;
+		this->pictureBox1->Name = ""+ (now);
+		this->pictureBox1->Tag = id.size()-1;
+		this->pictureBox1->Location = Point(10, 20+1* ((id.size()-1)*120));
+		this->pictureBox1->SizeMode = System::Windows::Forms::PictureBoxSizeMode::Zoom;
+		this->pictureBox1->Size = System::Drawing::Size(100, 100);
+		this->pictureBox1->Image = System::Drawing::Image::FromFile(openFileDialog1->FileName);
 		this->pictureBox1->Click += gcnew System::EventHandler(this, &MyForm::pictureBox1_Click);
-		groupBox2->Controls->Add(this->pictureBox1);
+		groupBox2->Controls->Add(this->pictureBox1);*/
 		std::cout << "create FINISH" << std::endl;
 		hkoglPanelControl1->Invalidate();
 	}
@@ -1233,15 +1238,59 @@ namespace OpenMesh_EX {
 		hkoglPanelControl1->Invalidate();
 	}
 
+	private: System::Void pic_Click(System::Object^  sender, System::EventArgs^  e) {
 
+		pictureBoxDialog->Filter = "Image Files(*.PNG;*.JPG;*.GIF)|*.PNG;*.JPG;*.GIF|All files (*.*)|*.*";
+		pictureBoxDialog->ShowDialog();
+		/*std::string num;
+		MarshalString(pic->Name, num);
+		num2 = stoi(num);
+		std::cout << num << std::endl;*/
+	}
 		 
 	private: System::Void pictureBox1_Click(System::Object^  sender, System::EventArgs^  e) {
 
-		std::string num;
-		MarshalString(pictureBox1->Name, num);
-		int num2 = stoi(num);
-		std::cout << num2 << std::endl;
-		//model.select_mesh(num);
+		///*pictureBoxDialog->Filter = "Image Files(*.PNG;*.JPG;*.GIF)|*.PNG;*.JPG;*.GIF|All files (*.*)|*.*";
+		//pictureBoxDialog->ShowDialog();*/
+		//std::string num;
+		//MarshalString(pictureBox1->Name, num);
+		///*int num2 = stoi(num);*/
+		//std::cout << num << std::endl;
+	}
+	private: System::Void pictureBoxDialog_FileOk(System::Object^  sender, System::ComponentModel::CancelEventArgs^  e) {
+		std::string filename;
+
+		MarshalString(pictureBoxDialog->FileName, filename);
+
+		std::cout << filename << std::endl;
+		const char * file = filename.c_str();
+		int image_width;
+		int image_height;
+		int imgcor;
+		id.push_back(0);
+		stbi_set_flip_vertically_on_load(true);
+		unsigned char* bytes = stbi_load(file, &image_width, &image_height, &imgcor, 0);
+		glGenTextures(1, &id[model.mesh_id]);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, id[model.mesh_id]);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		glGenerateMipmap(GL_TEXTURE_2D);
+		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+		stbi_image_free(bytes);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		textBox1->Text = "" + model.model.mesh_tex.size();
+
+		this->pictureBox1->Image = System::Drawing::Image::FromFile(pictureBoxDialog->FileName);
+		this->pic_init->Image = System::Drawing::Image::FromFile(pictureBoxDialog->FileName);
+		//pic_init->Controls->Remove();
+		hkoglPanelControl1->Invalidate();
 	}
 	private: System::Void reset_Click(System::Object^  sender, System::EventArgs^  e) {
 		rotation = 0.0f; 
@@ -1339,5 +1388,6 @@ namespace OpenMesh_EX {
 		}
 		hkoglPanelControl1->Invalidate();
 	}
+
 };
 }
