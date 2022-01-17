@@ -53,6 +53,7 @@ int tex_id = 0;
 //Tri_Mesh *mesh;
 bool edit_mode = false;
 int edit_num = 1;
+bool isloading = false;
 //xform xf;
 //GLCamera camera;
 //float fov = 0.7f;
@@ -670,13 +671,14 @@ namespace OpenMesh_EX {
 			drawModelShader.SetPMat(pMat);
 
 			if (render_tex == false)
-			{
-				for (int i = 0; i < model.model.mesh_tex.size(); i++)
+			{				
+				for (int i = 0; i < model.model.mesh_tex.size() ; i++)
 				{
-						glActiveTexture(GL_TEXTURE0);
-						glBindTexture(GL_TEXTURE_2D, id[i]);
-						model.Render_mesh2(i);
-				}
+
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, id[i]);
+					model.Render_mesh2(i);
+				}		
 			}
 			drawModelShader.Disable();
 		}
@@ -972,7 +974,7 @@ namespace OpenMesh_EX {
 	{
 		std::string filename;
 		MarshalString(saveModelDialog->FileName, filename);			
-		//model.save_tex_info(filename,id);
+
 		std::fstream outFile;
 		outFile.open(filename, std::ios_base::trunc | std::ios_base::out);
 		if (!outFile)
@@ -983,7 +985,8 @@ namespace OpenMesh_EX {
 
 		for (int i = 0; i < model.model.mesh_tex.size(); i++)
 		{
-			
+			outFile << "c" << "\n";
+			outFile << "f" << " ";
 			for (MyMesh::FaceIter f_it = model.model.mesh_tex[i].faces_begin(); f_it != model.model.mesh_tex[i].faces_end(); ++f_it)
 			{
 				for (MyMesh::FaceVertexIter fv_it = model.model.mesh_tex[i].fv_iter(*f_it); fv_it.is_valid(); ++fv_it)
@@ -999,21 +1002,24 @@ namespace OpenMesh_EX {
 					std::cout << "p3: " << p3 << std::endl;
 					int FaceId = model.model.mesh.FindFace(p1, p2, p3);
 					std::cout << "FaceId: " << FaceId << std::endl;
-					outFile << FaceId <<"\n";
+					outFile << FaceId <<" ";
 				}
 			}
+			outFile  << "\n";
 			std::cout << "pass 1: "<< model.model.mesh_tex.size() << std::endl;
-
+			outFile << "t" << " ";
 			for (int j = 0; j < model.mesh_record[i].x.size(); j++)
 			{
 				outFile << model.mesh_record[i].x[j]<< " ";
 				std::cout << "x: " << model.mesh_record[i].x[j] << std::endl;
-				outFile << model.mesh_record[i].y[j]<< "\n";
+				outFile << model.mesh_record[i].y[j]<< " ";
 				std::cout << "y: " << model.mesh_record[i].y[j] << std::endl;
 			}
+			outFile << "\n";
 			std::cout << "pass 2: "<< model.mesh_record[i].x.size() << std::endl;
-			outFile << i<<"\n";
-			std::cout << "pass 3" << std::endl;
+			/*outFile << i<<"\n";
+			std::cout << "pass 3" << std::endl;*/
+			outFile << "a" << "\n";
 		}
 
 		outFile.close();
@@ -1111,7 +1117,7 @@ namespace OpenMesh_EX {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	
 		model.create_mesh();
-		std::cout << "create mesh" << std::endl;
+	
 		textBox1->Text = "" + model.model.mesh_tex.size() ;	
 		//PictureBox pic;
 		//pic.Size= System::Drawing::Size(100, 50);
@@ -1126,7 +1132,7 @@ namespace OpenMesh_EX {
 		pictureBox1->Image = System::Drawing::Image::FromFile(openFileDialog1->FileName);
 		this->pictureBox1->Click += gcnew System::EventHandler(this, &MyForm::pictureBox1_Click);
 		groupBox2->Controls->Add(this->pictureBox1);
-		
+		std::cout << "create FINISH" << std::endl;
 		hkoglPanelControl1->Invalidate();
 	}
 	private: System::Void numericUpDown1_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
@@ -1221,8 +1227,9 @@ namespace OpenMesh_EX {
 		if (faceID != 0 && selectionMode == 1)
 		{
 			model.AddSelectedFacefinished();
-			light = false;			
+			light = false;				
 		}
+		
 		hkoglPanelControl1->Invalidate();
 	}
 
@@ -1241,30 +1248,96 @@ namespace OpenMesh_EX {
 		scal = 0.0f; 
 		translat = 0.0f;
 	}
-private: System::Void loadTextureToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+	private: System::Void loadTextureToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 
-	openModelDialog->Filter = "文字檔案(*.txt)|*.txt";
-	openModelDialog->Multiselect = false;
-	openModelDialog->ShowDialog();
-}
-private: System::Void openTexFileDialog_FileOk(System::Object^  sender, System::ComponentModel::CancelEventArgs^  e) {
-	std::string filename;
-	MarshalString(openModelDialog->FileName, filename);
-	std::ifstream ifs;
-	char buffer[100000] = { 0 };
-
-	ifs.open(filename);
-	if (!ifs.is_open()) {
-		std::cout << "Failed to open file.\n";
+		openTexFileDialog->Filter = "文字檔案(*.txt)|*.txt";
+		openTexFileDialog->Multiselect = false;
+		openTexFileDialog->ShowDialog();
 	}
-	else {
-
-		while (!ifs.eof()) {
-			ifs.getline(buffer, sizeof(buffer));
-			std::cout << buffer << "\n";
+	private: System::Void openTexFileDialog_FileOk(System::Object^  sender, System::ComponentModel::CancelEventArgs^  e) {
+		std::string filename;
+		MarshalString(openTexFileDialog->FileName, filename);
+		std::ifstream mytxt;
+		char buffer[100000] = { 0 };
+		char create[] = "c", add[] = "a", faceid[] = "f", texcoord[] = "t";
+		std::string Create = create, Add = add, FaceId=faceid,TexCoord = texcoord;
+		mytxt.open(filename);
+		bool f_flag = false, t_flag = false;
+		int time = 0;
+		if (!mytxt.is_open()) 
+		{
+			std::cout << "Failed to open file.\n";
 		}
-		ifs.close();
+		else 
+		{
+
+			while (!mytxt.eof()) 
+			{
+				mytxt.getline(buffer, sizeof(buffer));
+				std::string tmp = buffer;
+				std::vector<std::string> ret = model.split(tmp, ' ');
+				//std::cout << tmp << "\n";
+				if (tmp == Create)
+				{
+					button1_Click(sender, e);
+
+				}
+				if (tmp == FaceId)
+				{
+					button1_Click(sender, e);
+
+				}
+				for (int i=0;i< ret.size();i++)
+				{
+					if (f_flag == true&& ret[i]!= TexCoord)
+					{
+						model.AddSelectedFace((unsigned int)std::stoi(ret[i]));
+						std::cout << std::stoi(ret[i]) << '\n';
+					}
+					else if (t_flag == true&&ret[i]!= Add)
+					{
+						time++;
+						if (time % 2 == 1)
+						{
+													
+						}
+						else if (time % 2 == 0)
+						{
+							model.load_tex_info_vector(std::stof(ret[i - 1]), std::stof(ret[i]));
+							std::cout << ret[i-1] <<" "<<ret[i] << '\n';
+						}						
+					}
+					else if (ret[i] == FaceId)
+					{
+						f_flag = true;
+						t_flag = false;
+					}
+					else if (ret[i] == TexCoord)
+					{
+						f_flag = false;
+						t_flag = true;
+					}
+					else if (ret[i] == Add)
+					{
+						f_flag = false;
+						t_flag = false;
+					}
+				}
+				if (tmp == Add)
+				{
+					model.edit_num = 3;
+					model.AddSelectedFacefinished();
+					
+					model.load_tex_info();
+					model.edit_num = 1;
+					light = false;
+				}
+				
+				time = 0;
+			}
+			mytxt.close();
+		}
+		hkoglPanelControl1->Invalidate();
 	}
-}
 };
 }

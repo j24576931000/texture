@@ -96,7 +96,7 @@ public:
 	void create_mesh();
 	GLMesh model;
 	void select_mesh(int);
-	int change_mesh = 0;
+	int new_mesh = 0;
 	int mesh_id;
 	void mesh_move(unsigned int);
 	bool edit = false;
@@ -108,8 +108,13 @@ public:
 	std::vector<struct Mesh_tex_record> mesh_record;
 	std::vector<unsigned int> boundary;
 	void face_num();
-	void save_tex_info(std::string, std::vector<GLuint>);
+	void load_tex_info_vector(float,float);
+	void load_tex_info();
 	int origin_face_num=0;
+
+	const std::vector<std::string> split(const std::string &str, const char &delimiter);
+	std::vector<float> tex_X;
+	std::vector<float> tex_Y;
 private:
 	
 	std::vector<unsigned int> selectedFace;
@@ -156,8 +161,6 @@ private:
 	std::vector<GLuint> mesh_vboNormal;
 	std::vector<GLuint> mesh_ebo;
 	std::vector<GLuint> mesh_ebo_line;
-
-
 
 };
 
