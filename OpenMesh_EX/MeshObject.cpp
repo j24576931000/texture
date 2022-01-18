@@ -382,7 +382,6 @@ bool MeshObject::AddSelectedFacefinished()
 			model.mesh.property(vertexId, selectedpoint[i]) = vhandle[i];
 			//std::cout  << "add選的點到new mesh和對應新舊點vertex ID:   " << model.mesh.property(vertexId, selectedpoint[i]) << std::endl;
 		}
-		//std::cout << "2222222222222222222222222   " << std::endl;
 		//add face到new mesh
 		std::vector<MyMesh::VertexHandle>  face_vhandles;
 		//for (MyMesh::FaceIter f_it = model.mesh.faces_begin(); f_it != model.mesh.faces_end(); ++f_it)
@@ -415,7 +414,7 @@ void MeshObject::new_mesh_info()
 	model.mesh2.add_property(change_innerpoints_ID);
 	//測試存邊界的點
 	model.mesh2.add_property(pp2);
-	std::cout << "pp2 correct" << std::endl;
+	//std::cout << "pp2 correct" << std::endl;
 	for (MyMesh::VertexIter v_it = model.mesh2.vertices_begin(); v_it != model.mesh2.vertices_end(); ++v_it)
 	{
 		//std::cout << " 看這裡*v_it   : " << *v_it << std::endl;
@@ -798,7 +797,7 @@ void MeshObject::step4()
 	//SparseQR<SparseMatrix<double>, COLAMDOrdering<int>> linearSolver;
 	linearSolver.compute(inner_points_edge);
 	int end = clock();
-	std::cout << "linearSolver time  " << start - end << std::endl;
+	std::cout << "linearSolver time  " <<  end- start << std::endl;
 	VectorXd X = linearSolver.solve(B);
 	VectorXd Y = linearSolver.solve(C);
 	
@@ -830,8 +829,6 @@ void MeshObject::step4()
 		mesh_record[mesh_id] = record;
 	else 
 		mesh_record.push_back(record);
-	std::cout << " 點 " << mesh_record.size() << std::endl;
-	//std::cout << "第 "<< " 個點 " << mesh_record[mesh_id].x.size() << std::endl;
 	funx_total_final.clear();
 	funy_total_final.clear();
 	funweight_total_final.clear();
@@ -910,7 +907,7 @@ void MeshObject::LoadToShader2()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(OpenMesh::Vec2f) * texture2.size(), &texture2[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(2);
-	std::cout << "mesh_texure: "<<model.mesh_tex[mesh_id].n_faces()<<" :mesh_id"<< mesh_id << std::endl;
+	std::cout << "texure: "<<model.mesh_tex[mesh_id].n_faces()<<" :id"<< mesh_id << std::endl;
 
 	glGenBuffers(1, &mesh_ebo[mesh_id]);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_ebo[mesh_id]);
@@ -1008,7 +1005,7 @@ void MeshObject::create_mesh()
 	mesh_texure.push_back(0);
 	mesh_ebo.push_back(0);
 	mesh_ebo_line.push_back(0);
-	std::cout << "create mesh" << std::endl;
+	std::cout << "create" << std::endl;
 }
 void MeshObject::increase_face()
 {
@@ -1034,12 +1031,11 @@ void MeshObject::increase_face()
 			face_id.push_back((*vf_it).idx());
 		}
 	}
-	std::cout << "========================" << std::endl;
+
 	/*for (int i = 0; i < selectedFace.size(); i++)
 	{
 		std::cout << selectedFace[i] << std::endl;
 	}
-	std::cout << "========================" << std::endl;
 	for (int i = 0; i < selectedpoint.size(); i++)
 	{
 		std::cout << selectedpoint[i] << std::endl;
@@ -1048,15 +1044,12 @@ void MeshObject::increase_face()
 	selectedFace.clear();
 	selectedpoint.clear();
 	model.mesh.add_property(pp);
-	std::cout << "========================" << std::endl;
 	for (int i = 0; i < face_id.size(); i++)
 	{		
 		AddSelectedFace(face_id[i]);
 	}
 	face_id.clear();
-	std::cout << "========================" << std::endl;
 	AddSelectedFacefinished();
-	std::cout << "========================" << std::endl;
 	/*for (MyMesh::VertexIter v_it = model.mesh_tex[mesh_id].vertices_begin(); v_it != model.mesh_tex[mesh_id].vertices_end(); ++v_it)
 	{
 		if (model.mesh_tex[mesh_id].is_boundary(*v_it))
@@ -1217,7 +1210,7 @@ void MeshObject::other_mesh_increase()
 			}
 
 		}
-		std::cout << "time" << num << std::endl;
+		//std::cout << "time" << num << std::endl;
 		if (total == num)
 		{
 			flag = false;
@@ -1238,7 +1231,7 @@ void MeshObject::other_mesh_increase()
 	edit_num = 2;
 	new_mesh_info();
 	end_time = clock();
-	std::cout<< "total time :"<<start_time-end_time <<std::endl;
+	std::cout<< "total time :"<< end_time-start_time <<std::endl;
 }
 void MeshObject::other_mesh_increase_face()
 {
@@ -1314,8 +1307,8 @@ void MeshObject::load_tex_info()
 		mesh_record[mesh_id] = record;
 	else
 		mesh_record.push_back(record);
-	std::cout << " 點 " << mesh_record.size() << std::endl;
-	std::cout << "第 "<< " 個點 " << mesh_record[mesh_id].x.size() << std::endl;
+	std::cout << " size " << mesh_record.size() << std::endl;
+	std::cout <<  "點數 " << mesh_record[mesh_id].x.size() << std::endl;
 	LoadToShader2();
 	
 }
