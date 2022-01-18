@@ -140,7 +140,8 @@ namespace OpenMesh_EX {
 	private: System::Windows::Forms::OpenFileDialog^  openTexFileDialog;
 	private: System::Windows::Forms::OpenFileDialog^  pictureBoxDialog;	
 	private: System::ComponentModel::IContainer^  components;
-	//array<PictureBox^> ^pic = gcnew array<PictureBox^>(10);
+	private: System::Windows::Forms::Button^  multiselect;
+			 //array<PictureBox^> ^pic = gcnew array<PictureBox^>(10);
 	PictureBox^ pic_init;
 	protected:
 
@@ -193,6 +194,7 @@ namespace OpenMesh_EX {
 			this->button4 = (gcnew System::Windows::Forms::Button());
 			this->openTexFileDialog = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->pictureBoxDialog = (gcnew System::Windows::Forms::OpenFileDialog());
+			this->multiselect = (gcnew System::Windows::Forms::Button());
 			this->menuStrip1->SuspendLayout();
 			this->panel1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
@@ -347,6 +349,7 @@ namespace OpenMesh_EX {
 			// 
 			// panel2
 			// 
+			this->panel2->Controls->Add(this->multiselect);
 			this->panel2->Controls->Add(this->groupBox1);
 			this->panel2->Controls->Add(this->checkBox1);
 			this->panel2->Controls->Add(this->button3);
@@ -501,7 +504,7 @@ namespace OpenMesh_EX {
 			// edit
 			// 
 			this->edit->BackColor = System::Drawing::SystemColors::ButtonFace;
-			this->edit->Location = System::Drawing::Point(82, 25);
+			this->edit->Location = System::Drawing::Point(30, 25);
 			this->edit->Name = L"edit";
 			this->edit->Size = System::Drawing::Size(50, 50);
 			this->edit->TabIndex = 6;
@@ -530,6 +533,17 @@ namespace OpenMesh_EX {
 			// 
 			this->pictureBoxDialog->FileName = L"pictureBoxDialog";
 			this->pictureBoxDialog->FileOk += gcnew System::ComponentModel::CancelEventHandler(this, &MyForm::pictureBoxDialog_FileOk);
+			// 
+			// multiselect
+			// 
+			this->multiselect->BackColor = System::Drawing::SystemColors::ButtonFace;
+			this->multiselect->Location = System::Drawing::Point(134, 25);
+			this->multiselect->Name = L"multiselect";
+			this->multiselect->Size = System::Drawing::Size(50, 50);
+			this->multiselect->TabIndex = 19;
+			this->multiselect->Text = L"multiselect";
+			this->multiselect->UseVisualStyleBackColor = false;
+			this->multiselect->Click += gcnew System::EventHandler(this, &MyForm::multiselect_Click);
 			// 
 			// MyForm
 			// 
@@ -648,7 +662,6 @@ namespace OpenMesh_EX {
 			model.Render();
 		drawModelShader.Disable();
 
-
 		if (selectionMode == 1 || selectionMode == 2) {
 			drawPickingFaceShader.Enable();
 			drawPickingFaceShader.SetMVMat(value_ptr(mvMat));
@@ -658,6 +671,7 @@ namespace OpenMesh_EX {
 				model.RenderSelectedFace();
 			drawPickingFaceShader.Disable();
 		}
+		
 		if (light == false&&edit_mode==false)
 		{
 			drawModelShader.Enable();
@@ -705,6 +719,7 @@ namespace OpenMesh_EX {
 			
 			drawModelShader.Disable();
 		}
+		
 		/*if (selectionMode == 3)
 		{
 			if (updateFlag)
@@ -931,7 +946,16 @@ namespace OpenMesh_EX {
 			//std::cout << "selectionMode=" << selectionMode << std::endl;
 			hkoglPanelControl1->Invalidate();
 			//e.Handled = true;
-		}		
+		}	
+		else if (e->KeyChar == '4') {
+			if (model.other_increase == 0)
+				model.other_increase = 1;
+			else if (model.other_increase == 1)
+				model.other_increase = 0;
+			//std::cout << "selectionMode=" << selectionMode << std::endl;
+			hkoglPanelControl1->Invalidate();
+			//e.Handled = true;
+		}
 	}
 			 //按下load model選單
 	private: System::Void loadModelToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
@@ -994,30 +1018,30 @@ namespace OpenMesh_EX {
 				{
 
 					MyMesh::Point p1 = model.model.mesh_tex[i].point(*fv_it);
-					std::cout << "p1: " << p1 << std::endl;
+					//std::cout << "p1: " << p1 << std::endl;
 					++fv_it;
 					MyMesh::Point p2 = model.model.mesh_tex[i].point(*fv_it);
-					std::cout << "p2: " << p2 << std::endl;
+					//std::cout << "p2: " << p2 << std::endl;
 					++fv_it;
 					MyMesh::Point p3 = model.model.mesh_tex[i].point(*fv_it);
-					std::cout << "p3: " << p3 << std::endl;
+					//std::cout << "p3: " << p3 << std::endl;
 					int FaceId = model.model.mesh.FindFace(p1, p2, p3);
-					std::cout << "FaceId: " << FaceId << std::endl;
+					//std::cout << "FaceId: " << FaceId << std::endl;
 					outFile << FaceId <<" ";
 				}
 			}
 			outFile  << "\n";
-			std::cout << "pass 1: "<< model.model.mesh_tex.size() << std::endl;
+			//std::cout << "pass 1: "<< model.model.mesh_tex.size() << std::endl;
 			outFile << "t" << " ";
 			for (int j = 0; j < model.mesh_record[i].x.size(); j++)
 			{
 				outFile << model.mesh_record[i].x[j]<< " ";
-				std::cout << "x: " << model.mesh_record[i].x[j] << std::endl;
+				//std::cout << "x: " << model.mesh_record[i].x[j] << std::endl;
 				outFile << model.mesh_record[i].y[j]<< " ";
-				std::cout << "y: " << model.mesh_record[i].y[j] << std::endl;
+				//std::cout << "y: " << model.mesh_record[i].y[j] << std::endl;
 			}
 			outFile << "\n";
-			std::cout << "pass 2: "<< model.mesh_record[i].x.size() << std::endl;
+			//std::cout << "pass 2: "<< model.mesh_record[i].x.size() << std::endl;
 			/*outFile << i<<"\n";
 			std::cout << "pass 3" << std::endl;*/
 			outFile << "a" << "\n";
@@ -1307,7 +1331,7 @@ namespace OpenMesh_EX {
 		std::string filename;
 		MarshalString(openTexFileDialog->FileName, filename);
 		std::ifstream mytxt;
-		char buffer[100000] = { 0 };
+		char buffer[500000] = { 0 };
 		char create[] = "c", add[] = "a", faceid[] = "f", texcoord[] = "t";
 		std::string Create = create, Add = add, FaceId=faceid,TexCoord = texcoord;
 		mytxt.open(filename);
@@ -1323,6 +1347,7 @@ namespace OpenMesh_EX {
 			while (!mytxt.eof()) 
 			{
 				mytxt.getline(buffer, sizeof(buffer));
+				//std::cout << "sizeof(buffer) " << sizeof(buffer) << std::endl;
 				std::string tmp = buffer;
 				std::vector<std::string> ret = model.split(tmp, ' ');
 				//std::cout << tmp << "\n";
@@ -1341,7 +1366,7 @@ namespace OpenMesh_EX {
 					if (f_flag == true&& ret[i]!= TexCoord)
 					{
 						model.AddSelectedFace((unsigned int)std::stoi(ret[i]));
-						std::cout << std::stoi(ret[i]) << '\n';
+						//std::cout << std::stoi(ret[i]) << '\n';
 					}
 					else if (t_flag == true&&ret[i]!= Add)
 					{
@@ -1353,7 +1378,7 @@ namespace OpenMesh_EX {
 						else if (time % 2 == 0)
 						{
 							model.load_tex_info_vector(std::stof(ret[i - 1]), std::stof(ret[i]));
-							std::cout << ret[i-1] <<" "<<ret[i] << '\n';
+							//std::cout << ret[i-1] <<" "<<ret[i] << '\n';
 						}						
 					}
 					else if (ret[i] == FaceId)
@@ -1386,8 +1411,15 @@ namespace OpenMesh_EX {
 			}
 			mytxt.close();
 		}
+		std::cout << "load texture finish"<<std::endl;
 		hkoglPanelControl1->Invalidate();
 	}
 
+	private: System::Void multiselect_Click(System::Object^  sender, System::EventArgs^  e) {
+		if (model.multi_select == true)
+			model.multi_select = false;
+		else if (model.multi_select == false)
+			model.multi_select = true;
+	}
 };
 }

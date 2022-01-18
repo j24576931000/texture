@@ -317,10 +317,14 @@ void MeshObject::RenderSelectedFace()
 
 bool MeshObject::AddSelectedFace(unsigned int faceID)
 {
-	std::cout << "faceID:   " << faceID << std::endl;
-	if (edit_num == 2)
+	
+	//std::cout << "faceID:   " << faceID << std::endl;
+	if (multi_select == true)
 	{
-
+		multiselect(faceID);
+	}
+	else if (multi_select == false&&edit_num == 2)
+	{
 		if (std::find(selectedFace.begin(), selectedFace.end(), faceID) == selectedFace.end() &&
 			faceID >= 0 && faceID < model.mesh.n_faces())
 		{
@@ -333,45 +337,43 @@ bool MeshObject::AddSelectedFace(unsigned int faceID)
 		}	
 	}
 	
-	else if (edit == true&&edit_mode==true&& edit_num==1)
+	else if (edit == true&&edit_mode==true&& edit_num==1&& multi_select == false)
 	{
 		mesh_move(faceID);
 	}
 	else
 	{
 		if (std::find(selectedFace.begin(), selectedFace.end(), faceID) == selectedFace.end() &&
-			faceID >= 0 && faceID < model.mesh.n_faces())
+			faceID >= 0 && faceID < model.mesh.n_faces() )
 		{
 			selectedFace.push_back(faceID);
-
-			//for (MyMesh::FaceIter f_it = model.mesh.faces_begin(); f_it != model.mesh.faces_end(); ++f_it)
-			//{			
-				//for (int i = 0; i < selectedFace.size(); i++)
-				//{					
-					//if (*f_it == (const OpenMesh::ArrayKernel::FaceHandle)selectedFace[i])
-					//{
-			for (MyMesh::FaceVertexIter fv_it = model.mesh.fv_iter((OpenMesh::ArrayKernel::FaceHandle)faceID); fv_it.is_valid(); ++fv_it)
-			{
-				if (std::find(selectedpoint.begin(), selectedpoint.end(), *fv_it) == selectedpoint.end())
-				{
-					selectedpoint.push_back(*fv_it);
-				}
-				model.mesh.property(pp, *fv_it) = model.mesh.point(*fv_it);
-				//std::cout << *fv_it << ":   " << model.mesh.property(pp, *fv_it) << std::endl;					
-			}
-			//}		
-		//}
-	//}
-			return true;
-		}
+		}			
 	}
+	/*if (std::find(is_used.begin(), is_used.end(), faceID) == is_used.end() &&
+		faceID >= 0 && faceID < model.mesh.n_faces())
+	{
+		is_used.push_back(faceID);
+	}*/
 	return false;
 }
 bool MeshObject::AddSelectedFacefinished()
 {
-	//num.mesh_id = model.mesh_tex.size() - 1;
-	//mesh_record.push_back(num);
-	//add選的點到new mesh和對應新舊點vertex ID
+	multi_select = false;
+	model.mesh2.ClearMesh();
+	start_time = clock();
+	for (int i = 0; i < selectedFace.size(); i++)
+	{
+		for (MyMesh::FaceVertexIter fv_it = model.mesh.fv_iter((OpenMesh::ArrayKernel::FaceHandle)selectedFace[i]); fv_it.is_valid(); ++fv_it)
+		{
+			if (std::find(selectedpoint.begin(), selectedpoint.end(), *fv_it) == selectedpoint.end())
+			{
+				selectedpoint.push_back(*fv_it);
+			}
+			model.mesh.property(pp, *fv_it) = model.mesh.point(*fv_it);
+
+		}
+	}
+
 	//if (change_mesh == 0)
 	//{
 		for (int i = 0; i < selectedpoint.size(); i++)
@@ -399,6 +401,7 @@ bool MeshObject::AddSelectedFacefinished()
 	vhandle.clear();
 	model.mesh_tex[mesh_id] = model.mesh2;
 	//}
+	selectedpoint.clear();
 	if (edit_num != 3)
 	{
 		new_mesh_info();
@@ -620,8 +623,8 @@ void MeshObject::step3()
 			mesh_record[mesh_id] = record;
 		else
 			mesh_record.push_back(record);
-		std::cout << " 點 " << mesh_record.size() << std::endl;
-		std::cout << "第 " << " 個點 " << mesh_record[mesh_id].x.size() << std::endl;
+		//std::cout << " 點 " << mesh_record.size() << std::endl;
+		//std::cout << "第 " << " 個點 " << mesh_record[mesh_id].x.size() << std::endl;
 		LoadToShader2();
 	}
 }
@@ -828,7 +831,7 @@ void MeshObject::step4()
 	else 
 		mesh_record.push_back(record);
 	std::cout << " 點 " << mesh_record.size() << std::endl;
-	std::cout << "第 "<< " 個點 " << mesh_record[mesh_id].x.size() << std::endl;
+	//std::cout << "第 "<< " 個點 " << mesh_record[mesh_id].x.size() << std::endl;
 	funx_total_final.clear();
 	funy_total_final.clear();
 	funweight_total_final.clear();
@@ -1031,8 +1034,8 @@ void MeshObject::increase_face()
 			face_id.push_back((*vf_it).idx());
 		}
 	}
-	/*std::cout << "========================" << std::endl;
-	for (int i = 0; i < selectedFace.size(); i++)
+	std::cout << "========================" << std::endl;
+	/*for (int i = 0; i < selectedFace.size(); i++)
 	{
 		std::cout << selectedFace[i] << std::endl;
 	}
@@ -1045,13 +1048,15 @@ void MeshObject::increase_face()
 	selectedFace.clear();
 	selectedpoint.clear();
 	model.mesh.add_property(pp);
+	std::cout << "========================" << std::endl;
 	for (int i = 0; i < face_id.size(); i++)
 	{		
 		AddSelectedFace(face_id[i]);
 	}
 	face_id.clear();
+	std::cout << "========================" << std::endl;
 	AddSelectedFacefinished();
-	
+	std::cout << "========================" << std::endl;
 	/*for (MyMesh::VertexIter v_it = model.mesh_tex[mesh_id].vertices_begin(); v_it != model.mesh_tex[mesh_id].vertices_end(); ++v_it)
 	{
 		if (model.mesh_tex[mesh_id].is_boundary(*v_it))
@@ -1128,22 +1133,50 @@ void MeshObject::mesh_move(unsigned int faceID)
 		{
 			internal_face++;
 		}
-	}
-	/*if ((extra_face / 2) > (origin_face_num - internal_face))
-	{
-		for (MyMesh::FaceIter f_it = model.mesh_tex[mesh_id].faces_begin(); f_it != model.mesh_tex[mesh_id].faces_end(); ++f_it)
-		{
-			if (model.mesh_tex[mesh_id].is_boundary(*f_it))
-			{
-				std::cout << "test: "<< *f_it <<std::endl;
-				decrease_face();
-			}
-		}
-	}*/
-	
+	}	
 	edit_num = 1;
 	new_mesh_info();
 	edit = true;	
+}
+void MeshObject::multiselect(unsigned int faceID)
+{
+	multi_select = false;
+	AddSelectedFace(faceID);
+	std::vector<int>used_point;
+	std::vector<int>used_point2;
+	/*for (int i = 0; i < selectedFace.size(); i++)
+	{
+		used_point.push_back(selectedFace[i]);
+	}*/
+	for (MyMesh::FaceFaceIter ff_it = model.mesh.ff_iter((OpenMesh::ArrayKernel::FaceHandle)faceID); ff_it.is_valid(); ++ff_it)
+	{
+		AddSelectedFace((*ff_it).idx());
+		used_point.push_back((*ff_it).idx());
+	}
+	for (int j = 0; j < 4; j++)
+	{
+		for (int i = 0; i < used_point.size(); i++)
+		{
+			for (MyMesh::FaceFaceIter ff_it = model.mesh.ff_iter((OpenMesh::ArrayKernel::FaceHandle)used_point[i]); ff_it.is_valid(); ++ff_it)
+			{
+				AddSelectedFace((*ff_it).idx());
+				used_point2.push_back((*ff_it).idx());
+			}
+		}
+		used_point.clear();
+		for (int i = 0; i < used_point2.size(); i++)
+		{
+			for (MyMesh::FaceFaceIter ff_it = model.mesh.ff_iter((OpenMesh::ArrayKernel::FaceHandle)used_point2[i]); ff_it.is_valid(); ++ff_it)
+			{
+				AddSelectedFace((*ff_it).idx());
+				used_point.push_back((*ff_it).idx());
+			}
+		}
+		used_point2.clear();
+	}
+	edit_num = 1;
+	//new_mesh_info();
+	multi_select = true;
 }
 void MeshObject::face_num()
 {	
@@ -1151,11 +1184,12 @@ void MeshObject::face_num()
 }
 void MeshObject::other_mesh_increase()
 {
+	edit_num = 3;
 	for (int i = 0; i < boundary.size(); i++)
 	{
 		DeleteSelectedFace(boundary[i]);
 	}
-
+	edit_num = 2;
 	
 	edit_num = 3;
 	bool flag = true;
@@ -1164,7 +1198,10 @@ void MeshObject::other_mesh_increase()
 	int time = 0;
 	while (flag == true)
 	{
-		increase_face();
+		if(other_increase==0)
+			other_mesh_increase_face();
+		else if(other_increase == 1)
+			increase_face();
 		int total = boundary.size();
 		
 		//num++;
@@ -1200,6 +1237,8 @@ void MeshObject::other_mesh_increase()
 	}	
 	edit_num = 2;
 	new_mesh_info();
+	end_time = clock();
+	std::cout<< "total time :"<<start_time-end_time <<std::endl;
 }
 void MeshObject::other_mesh_increase_face()
 {
@@ -1251,8 +1290,8 @@ void MeshObject::load_tex_info_vector(float x, float y)
 {
 	tex_X.push_back(x);
 	tex_Y.push_back(y);
-	std::cout << "X " << tex_X.size() << '\n';
-	std::cout << "Y " << tex_Y.size() << '\n';
+	//std::cout << "X " << tex_X.size() << '\n';
+	//std::cout << "Y " << tex_Y.size() << '\n';
 }
 void MeshObject::load_tex_info()
 {
@@ -1262,6 +1301,21 @@ void MeshObject::load_tex_info()
 	{			
 		model.mesh2.property(v_2d, (OpenMesh::ArrayKernel::VertexHandle)i) = OpenMesh::Vec2f(tex_X[i], tex_Y[i]);		
 	}
+	std::cout << "tex_info_finish"<<std::endl;
+	struct Mesh_tex_record record;
+	//最後點的位置
+	for (MyMesh::VertexIter v_it = model.mesh2.vertices_begin(); v_it != model.mesh2.vertices_end(); ++v_it)
+	{
+		record.mesh_id = mesh_id;
+		record.x.push_back(model.mesh2.property(v_2d, *v_it)[0]);
+		record.y.push_back(model.mesh2.property(v_2d, *v_it)[1]);				
+	}
+	if (new_mesh == 0)
+		mesh_record[mesh_id] = record;
+	else
+		mesh_record.push_back(record);
+	std::cout << " 點 " << mesh_record.size() << std::endl;
+	std::cout << "第 "<< " 個點 " << mesh_record[mesh_id].x.size() << std::endl;
 	LoadToShader2();
 	
 }
@@ -1286,8 +1340,11 @@ const std::vector<std::string>  MeshObject::split(const std::string &str, const 
 void MeshObject::DeleteSelectedFace(unsigned int faceID)
 {
 	selectedFace.erase(std::remove(selectedFace.begin(), selectedFace.end(), faceID), selectedFace.end());
-	//selectedFace.clear();
-	//selectedpoint.clear();
+	//is_used.erase(std::remove(is_used.begin(), is_used.end(), faceID), is_used.end());
+	if (edit_num == 2)
+	{
+		boundary.erase(std::remove(boundary.begin(), boundary.end(), faceID), boundary.end());
+	}
 }
 
 bool MeshObject::FindClosestPoint(unsigned int faceID, glm::vec3 worldPos, glm::vec3& closestPos)

@@ -115,6 +115,11 @@ public:
 	const std::vector<std::string> split(const std::string &str, const char &delimiter);
 	std::vector<float> tex_X;
 	std::vector<float> tex_Y;
+	std::vector<unsigned int> is_used;
+	int other_increase = 1;
+	void multiselect(unsigned int);
+	bool multi_select = false;
+	std::vector<int>used;
 private:
 	
 	std::vector<unsigned int> selectedFace;
@@ -161,6 +166,9 @@ private:
 	std::vector<GLuint> mesh_vboNormal;
 	std::vector<GLuint> mesh_ebo;
 	std::vector<GLuint> mesh_ebo_line;
+
+	int start_time ;
+	int end_time ;
 
 };
 
