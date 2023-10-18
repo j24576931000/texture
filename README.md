@@ -1,4 +1,4 @@
-![image](https://github.com/j24576931000/texture/assets/31430607/882ee2fd-3eb7-4c6c-b3ba-3e3e820134e2)# **Mesh Parameterization for Texture Mapping** 
+# **Mesh Parameterization for Texture Mapping** 
 
 
 ## **貼上貼圖**
