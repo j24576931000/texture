@@ -46,13 +46,11 @@ public:
 	GLuint ebo2;
 	GLuint vboVertices2, vboNormal2, tex2;
 	void LoadToShader();
-	void LoadToShader2();
+	//void LoadToShader2();
 private:
 
 	bool LoadModel(std::string fileName);
-
 	//void caculateUV();
-
 };
 //struct Mesh_record {
 //	int mesh_id;
@@ -79,6 +77,7 @@ public:
 	void DeleteSelectedFace(unsigned int faceID);
 	bool FindClosestPoint(unsigned int faceID, glm::vec3 worldPos, glm::vec3& closestPos);
 	bool AddSelectedFacefinished();
+	void new_mesh_info();
 	void CaculateWeight();
 	void step3();
 	void step4();
@@ -86,80 +85,68 @@ public:
 	float distance(OpenMesh::Vec3f a);
 	//float MeshObject::cotan(const VectorXf &a, const  VectorXf& b);
 	bool End(std::string fileName);
-	GLuint vao2;
-	GLuint ebo2;
-	GLuint vboVertices2, vboNormal2, tex2;
-	GLuint ebo3;
 	void LoadToShader2();
 	void increase_face();
 	void decrease_face();
 	void create_mesh();
-	GLMesh model;
 	void select_mesh(int);
-	int new_mesh = 0;
-	int mesh_id;
 	void mesh_move(unsigned int);
-	bool edit = false;
-	bool edit_mode = false;
-	int edit_num = 1;
 	void other_mesh_increase();
 	void other_mesh_increase_face();
-	void new_mesh_info();
-	std::vector<struct Mesh_tex_record> mesh_record;
-	std::vector<unsigned int> boundary;
 	void face_num();
 	void load_tex_info_vector(float,float);
 	void load_tex_info();
-	int origin_face_num=0;
-
-	const std::vector<std::string> split(const std::string &str, const char &delimiter);
-	std::vector<float> tex_X;
-	std::vector<float> tex_Y;
-	std::vector<unsigned int> is_used;
-	int other_increase = 1;
 	void multiselect(unsigned int);
+
+	std::vector<struct Mesh_tex_record> mesh_record;//存貼圖的mesh
+	std::vector<unsigned int> boundary;//other_mesh_increase和other_mesh_increase_face用的
+	const std::vector<std::string> split(const std::string &str, const char &delimiter);
+	std::vector<float> tex_X;//讀檔x座標
+	std::vector<float> tex_Y;//讀檔y座標
+
+	GLMesh model;
+	//OpenGL
+	GLuint vao2;
+	GLuint ebo2;
+	GLuint vboVertices2, vboNormal2, tex2;
+	GLuint ebo3;
+
+	//控制編輯
+	bool edit = false;
+	bool edit_mode = false;
+	int edit_num = 1;
+
+	int new_mesh = 0;//是否為新mesh
+	int mesh_id;//第幾張貼圖的mesh
+	int origin_face_num = 0;//有幾個face，mesh_move用
+	int other_increase = 1;
 	bool multi_select = false;
-	std::vector<int>used;
+
 private:
 	
 	std::vector<unsigned int> selectedFace;
 	std::vector<OpenMesh::ArrayKernel::VertexHandle> selectedpoint;
-	std::vector<MyMesh::Point> point;
-	//std::vector<unsigned int*> fvIDsPtr;
-	std::vector<int> elemCount;
-	std::vector<MyMesh::VertexHandle> vhandle;
-	OpenMesh::EPropHandleT<MyMesh::Edge> ep;
-	OpenMesh::VPropHandleT<MyMesh::Point> pp;
-	OpenMesh::VPropHandleT<MyMesh::Point> pp2;
+	std::vector<MyMesh::VertexHandle> vhandle;//處理新舊點mappping時用
 
-	//OpenMesh::VPropHandleT<MyMesh::Point> ppnew;
-	OpenMesh::VPropHandleT<MyMesh::Point> notinbound;//存非邊界vertex 的property
-
+	OpenMesh::VPropHandleT<MyMesh::Point> pp;//存原本每個選到的點的座標
+	OpenMesh::VPropHandleT<MyMesh::Point> pp2;//new mesh邊界的點
 	OpenMesh::VPropHandleT<OpenMesh::ArrayKernel::VertexHandle> vertexId;//存新mesh的vertex 的property
-
-
-	std::vector<MyMesh::VertexHandle> v_boundary;
+	
 	OpenMesh::EPropHandleT<float> weight;//存weight
 
-
-
 	int inner_point_num = 0;//有幾個內部點
-	//int adjacent_point_num = 0;//內部點有幾個相鄰的點
-	OpenMesh::VPropHandleT<float> X;//
-	OpenMesh::VPropHandleT<float> Y;//
-	OpenMesh::VPropHandleT<float> fun_weight;//
-	OpenMesh::VPropHandleT<int> change_innerpoints_ID;//
+	OpenMesh::VPropHandleT<int> change_innerpoints_ID;//重編內部點編號
+	OpenMesh::VPropHandleT< std::vector<MyMesh::VertexHandle> > adjacent_point_num_ID;//記內部點的相鄰點one_ring
 
-	OpenMesh::VPropHandleT< std::vector<MyMesh::VertexHandle> > adjacent_point_num_ID;//
+	std::vector<MyMesh::VertexHandle> v_boundary; //處理邊界點mapping到正方形上時用
 
-
+	OpenMesh::VPropHandleT<float> X;//point.x*weight
+	OpenMesh::VPropHandleT<float> Y;//point.y*weight
+	OpenMesh::VPropHandleT<float> fun_weight;//weight
+	
 	OpenMesh::VPropHandleT<OpenMesh::Vec2f> v_2d;//存map到的點位置
 
-
-
-
-
-
+	//OpenGL
 	std::vector<GLuint> mesh_vao;
 	std::vector<GLuint> mesh_texure;
 	std::vector<GLuint> mesh_vboVertices;
@@ -167,6 +154,7 @@ private:
 	std::vector<GLuint> mesh_ebo;
 	std::vector<GLuint> mesh_ebo_line;
 
+	//測時間
 	int start_time ;
 	int end_time ;
 
