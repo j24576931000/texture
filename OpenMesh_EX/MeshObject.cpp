@@ -361,41 +361,42 @@ bool MeshObject::AddSelectedFacefinished()
 	multi_select = false;
 	model.mesh2.ClearMesh();
 	start_time = clock();
-	for (int i = 0; i < selectedFace.size(); i++)
-	{
+	for (int i = 0; i < selectedFace.size(); i++)//æŠŠé¸åˆ°çš„é¢çš„é»éƒ½è¨˜èµ·ä¾†
+	{      	
 		for (MyMesh::FaceVertexIter fv_it = model.mesh.fv_iter((OpenMesh::ArrayKernel::FaceHandle)selectedFace[i]); fv_it.is_valid(); ++fv_it)
 		{
 			if (std::find(selectedpoint.begin(), selectedpoint.end(), *fv_it) == selectedpoint.end())
 			{
 				selectedpoint.push_back(*fv_it);
 			}
-			model.mesh.property(pp, *fv_it) = model.mesh.point(*fv_it);
+			model.mesh.property(pp, *fv_it) = model.mesh.point(*fv_it);//æ¯å€‹é»mapåˆ°å®ƒçš„é ‚é»åº§æ¨™(x,y,z)
 
 		}
 	}
 
 	//if (change_mesh == 0)
 	//{
-		for (int i = 0; i < selectedpoint.size(); i++)
+	//add pointåˆ°new mesh
+	for (int i = 0; i < selectedpoint.size(); i++)
+	{
+		vhandle.push_back(model.mesh2.add_vertex(MyMesh::Point(model.mesh.point(selectedpoint[i]))));
+		model.mesh.property(vertexId, selectedpoint[i]) = vhandle[i];
+		//std::cout  << "addé¸çš„é»åˆ°new meshå’Œå°æ‡‰æ–°èˆŠé»vertex ID:   " << model.mesh.property(vertexId, selectedpoint[i]) << std::endl;
+	}
+	//add faceåˆ°new mesh
+	std::vector<MyMesh::VertexHandle>  face_vhandles;
+	//for (MyMesh::FaceIter f_it = model.mesh.faces_begin(); f_it != model.mesh.faces_end(); ++f_it)
+	//{
+	for (int i = 0; i < selectedFace.size(); i++)
+	{
+		for (MyMesh::FaceVertexIter fv_it = model.mesh.fv_iter((OpenMesh::ArrayKernel::FaceHandle)selectedFace[i]); fv_it.is_valid(); ++fv_it)
 		{
-			vhandle.push_back(model.mesh2.add_vertex(MyMesh::Point(model.mesh.point(selectedpoint[i]))));
-			model.mesh.property(vertexId, selectedpoint[i]) = vhandle[i];
-			//std::cout  << "add¿ïªºÂI¨ìnew mesh©M¹ïÀ³·sÂÂÂIvertex ID:   " << model.mesh.property(vertexId, selectedpoint[i]) << std::endl;
+			face_vhandles.push_back(model.mesh.property(vertexId, *fv_it));
+			//std::cout <<  "add faceåˆ°new mesh:   " << model.mesh.property(vertexId, *fv_it) << std::endl;
 		}
-		//add face¨ìnew mesh
-		std::vector<MyMesh::VertexHandle>  face_vhandles;
-		//for (MyMesh::FaceIter f_it = model.mesh.faces_begin(); f_it != model.mesh.faces_end(); ++f_it)
-		//{
-		for (int i = 0; i < selectedFace.size(); i++)
-		{
-			for (MyMesh::FaceVertexIter fv_it = model.mesh.fv_iter((OpenMesh::ArrayKernel::FaceHandle)selectedFace[i]); fv_it.is_valid(); ++fv_it)
-			{
-				face_vhandles.push_back(model.mesh.property(vertexId, *fv_it));
-				//std::cout <<  "add face¨ìnew mesh:   " << model.mesh.property(vertexId, *fv_it) << std::endl;
-			}
-			model.mesh2.add_face(face_vhandles);
-			face_vhandles.clear();
-		}
+		model.mesh2.add_face(face_vhandles);
+		face_vhandles.clear();
+	}
 	//}
 	vhandle.clear();
 	model.mesh_tex[mesh_id] = model.mesh2;
@@ -412,17 +413,18 @@ void MeshObject::new_mesh_info()
 	model.mesh2.add_property(adjacent_point_num_ID);
 
 	model.mesh2.add_property(change_innerpoints_ID);
-	//´ú¸Õ¦sÃä¬ÉªºÂI
+	//æ¸¬è©¦å­˜é‚Šç•Œçš„é»
 	model.mesh2.add_property(pp2);
 	//std::cout << "pp2 correct" << std::endl;
 	for (MyMesh::VertexIter v_it = model.mesh2.vertices_begin(); v_it != model.mesh2.vertices_end(); ++v_it)
 	{
-		//std::cout << " ¬İ³o¸Ì*v_it   : " << *v_it << std::endl;
+		//std::cout << " çœ‹é€™è£¡*v_it   : " << *v_it << std::endl;
 		for (MyMesh::VertexVertexIter vv_it = model.mesh2.vv_iter(*v_it); vv_it.is_valid(); ++vv_it)
 		{
+			//æ‰¾å…§éƒ¨é»çš„ç›¸é„°çš„é»
 			if (!model.mesh2.is_boundary(*v_it))
 			{
-				//std::cout <<  " ¬İ³o¸Ì*vv_it   : "<<*vv_it  << std::endl;
+				//std::cout <<  " çœ‹é€™è£¡*vv_it   : "<<*vv_it  << std::endl;
 				//adjacent_point_num ++;
 				if (model.mesh2.is_boundary(*vv_it))
 				{
@@ -432,14 +434,14 @@ void MeshObject::new_mesh_info()
 		}
 		if (!model.mesh2.is_boundary(*v_it))
 		{
-			model.mesh2.property(change_innerpoints_ID, *v_it) = inner_point_num;//³æ¿W­«½s¤º³¡ÂI½s¸¹
-			inner_point_num++;//ºâ¸Ñ½u©Ê¨t²Î®Éªº¯x°}¤j¤p
+			model.mesh2.property(change_innerpoints_ID, *v_it) = inner_point_num;//å–®ç¨é‡ç·¨å…§éƒ¨é»ç·¨è™Ÿ
+			inner_point_num++;//ç®—è§£ç·šæ€§ç³»çµ±æ™‚çš„çŸ©é™£å¤§å°
 		}
-
+		//ç´€éŒ„é‚Šç•Œé»
 		if (model.mesh2.is_boundary(*v_it))
 		{
 			model.mesh2.property(change_innerpoints_ID, *v_it) = -1;
-			model.mesh2.property(pp2, *v_it) = model.mesh2.point(*v_it);//¦sÃä¬ÉªºÂI
+			model.mesh2.property(pp2, *v_it) = model.mesh2.point(*v_it);//å­˜é‚Šç•Œçš„é»
 			//std::cout << *v_it << " *v_it:   " << model.mesh2.property(pp2, *v_it) << std::endl;
 		}
 	}
@@ -463,8 +465,8 @@ void MeshObject::CaculateWeight()
 		{
 			TriMesh::HalfedgeHandle heh, heh_next, heh2, heh_next2;
 			OpenMesh::ArrayKernel::VertexHandle   vertex_j, vertex_j_next, vertex_j_prev, vertex_i;
-			heh = model.mesh2.halfedge_handle(*e_it, 1);//¥ªÃä
-			heh2 = model.mesh2.halfedge_handle(*e_it, 0);//¥kÃä
+			heh = model.mesh2.halfedge_handle(*e_it, 1);//å·¦é‚Š
+			heh2 = model.mesh2.halfedge_handle(*e_it, 0);//å³é‚Š
 
 			//std::cout << model.mesh2.to_vertex_handle(heh) << std::endl;
 			vertex_j = model.mesh2.from_vertex_handle(heh);//<---------------------------------------------vertex_j
@@ -513,7 +515,7 @@ void MeshObject::CaculateWeight()
 			model.mesh2.property(weight, *e_it) = wij;
 		}
 	}
-	//ÀË¬dweights
+	//æª¢æŸ¥weights
 	/*for (MyMesh::EdgeIter e_it = model.mesh2.edges_begin(); e_it != model.mesh2.edges_end(); ++e_it)
 	{
 		std::cout << "====================================" << std::endl;
@@ -527,35 +529,35 @@ void MeshObject::step3()
 	std::vector<float>dis;
 	float dis_total = 0, dis_tmp = 0;
 	model.mesh2.add_property(v_2d);
-	//1.¬D¤@­ÓÂIÂ¶boundaryªºÃä  2.ºâ¶ZÂ÷
+	//1.æŒ‘ä¸€å€‹é»ç¹boundaryçš„é‚Š  2.ç®—è·é›¢
 	for (MyMesh::HalfedgeIter e_it = model.mesh2.halfedges_begin(); e_it != model.mesh2.halfedges_end(); ++e_it)
 	{
 		if (model.mesh2.is_boundary(*e_it))
 		{
 			//std::cout << *e_it << " *e_it:   "  << std::endl;
 			TriMesh::HalfedgeHandle heh, heh_next;
-			heh = model.mesh2.halfedge_handle(model.mesh2.to_vertex_handle(*e_it));//1.¬D¤@­ÓÂIÂ¶boundaryªºÃä
-			v_boundary.push_back(model.mesh2.to_vertex_handle(heh));//1.¬D¤@­ÓÂIÂ¶boundaryªºÃä		
+			heh = model.mesh2.halfedge_handle(model.mesh2.to_vertex_handle(*e_it));//1.æŒ‘ä¸€å€‹é»ç¹boundaryçš„é‚Š
+			v_boundary.push_back(model.mesh2.to_vertex_handle(heh));//1.æŒ‘ä¸€å€‹é»ç¹boundaryçš„é‚Š		
 			//std::cout << model.mesh2.point(model.mesh2.to_vertex_handle(heh)) - model.mesh2.point(model.mesh2.from_vertex_handle(heh)) << std::endl;
-			dis.push_back(distance(model.mesh2.point(model.mesh2.to_vertex_handle(heh)) - model.mesh2.point(model.mesh2.from_vertex_handle(heh)))); //2.ºâ¶ZÂ÷
+			dis.push_back(distance(model.mesh2.point(model.mesh2.to_vertex_handle(heh)) - model.mesh2.point(model.mesh2.from_vertex_handle(heh)))); //2.ç®—è·é›¢
 
 			while (*e_it != heh)
 			{
-				heh = model.mesh2.halfedge_handle(model.mesh2.to_vertex_handle(heh));//1.¬D¤@­ÓÂIÂ¶boundaryªºÃä
-				v_boundary.push_back(model.mesh2.to_vertex_handle(heh));//1.¬D¤@­ÓÂIÂ¶boundaryªºÃä
+				heh = model.mesh2.halfedge_handle(model.mesh2.to_vertex_handle(heh));//1.æŒ‘ä¸€å€‹é»ç¹boundaryçš„é‚Š
+				v_boundary.push_back(model.mesh2.to_vertex_handle(heh));//1.æŒ‘ä¸€å€‹é»ç¹boundaryçš„é‚Š
 				//std::cout << model.mesh2.point(model.mesh2.to_vertex_handle(heh)) - model.mesh2.point(model.mesh2.from_vertex_handle(heh)) << std::endl;
-				dis.push_back(distance(model.mesh2.point(model.mesh2.to_vertex_handle(heh)) - model.mesh2.point(model.mesh2.from_vertex_handle(heh))));//2.ºâ¶ZÂ÷
+				dis.push_back(distance(model.mesh2.point(model.mesh2.to_vertex_handle(heh)) - model.mesh2.point(model.mesh2.from_vertex_handle(heh))));//2.ç®—è·é›¢
 			}
 			break;
 		}
 	}
-	//ºâ©Pªø
+	//ç®—å‘¨é•·
 	for (int i = 0; i < dis.size(); i++)
 	{
 		//std::cout << "dis: "<<i <<"="<< dis[i] << std::endl;
 		dis_total = dis_total + dis[i];
 	}
-	//map¨ì¶K¹Ï®y¼Ğ
+	//mapåˆ°è²¼åœ–åº§æ¨™
 
 	for (int i = 1; i < v_boundary.size(); i++)
 	{
@@ -584,12 +586,12 @@ void MeshObject::step3()
 			model.mesh2.property(v_2d, v_boundary[i]) = OpenMesh::Vec2f(0, 0);//(0,0)
 		}
 	}
-	//¬d¬İmap¨ìªºÂI
-	for (MyMesh::VertexIter v_it = model.mesh2.vertices_begin(); v_it != model.mesh2.vertices_end(); ++v_it)
-	{
-		//std::cout << "¶K¹Ï®y¼Ğ"<<*v_it<<" *v_it "<< model.mesh2.property(v_2d, *v_it) << std::endl;
-	}
-	//¬d¬İÂIªº¶¶§Ç
+	//æŸ¥çœ‹mapåˆ°çš„é»
+	//for (MyMesh::VertexIter v_it = model.mesh2.vertices_begin(); v_it != model.mesh2.vertices_end(); ++v_it)
+	//{
+		//std::cout << "è²¼åœ–åº§æ¨™"<<*v_it<<" *v_it "<< model.mesh2.property(v_2d, *v_it) << std::endl;
+	//}
+	//æŸ¥çœ‹é»çš„é †åº
 	/*for (int i = 0; i < v_boundary.size(); i++)
 	{
 
@@ -609,7 +611,7 @@ void MeshObject::step3()
 	{
 		model.mesh_tex[mesh_id] = model.mesh2;
 		struct Mesh_tex_record record;
-		//³Ì«áÂIªº¦ì¸m
+		//æœ€å¾Œé»çš„ä½ç½®
 		for (MyMesh::VertexIter v_it = model.mesh2.vertices_begin(); v_it != model.mesh2.vertices_end(); ++v_it)
 		{
 
@@ -622,8 +624,8 @@ void MeshObject::step3()
 			mesh_record[mesh_id] = record;
 		else
 			mesh_record.push_back(record);
-		//std::cout << " ÂI " << mesh_record.size() << std::endl;
-		//std::cout << "²Ä " << " ­ÓÂI " << mesh_record[mesh_id].x.size() << std::endl;
+		//std::cout << " é» " << mesh_record.size() << std::endl;
+		//std::cout << "ç¬¬ " << " å€‹é» " << mesh_record[mesh_id].x.size() << std::endl;
 		LoadToShader2();
 	}
 }
@@ -643,7 +645,7 @@ void MeshObject::step4()
 		vertexnewID.push_back(vertexto);
 		vertexto.clear();
 	}
-	//³B²z§tÃä¬ÉÂIªºÃäªºw*p©M³B²z¤¤¶¡¤£§tÃä¬ÉÂIªºÃäªºw
+	//è™•ç†å«é‚Šç•Œé»çš„é‚Šçš„w*på’Œè™•ç†ä¸­é–“ä¸å«é‚Šç•Œé»çš„é‚Šçš„w
 	for (MyMesh::EdgeIter e_it = model.mesh2.edges_begin(); e_it != model.mesh2.edges_end(); ++e_it)
 	{
 		TriMesh::HalfedgeHandle heh;
@@ -690,7 +692,7 @@ void MeshObject::step4()
 			}
 		}
 	}
-	//ÅıjiÃä¦P¨B¸òijÃäÅÜ¤@¼Ë
+	//è®“jié‚ŠåŒæ­¥è·Ÿijé‚Šè®Šä¸€æ¨£
 	for (int i = 0; i < vertexnewID.size(); i++)
 	{
 		//std::cout <<" vertexnewID[i].size() "<< vertexnewID[i].size() << std::endl;
@@ -702,7 +704,7 @@ void MeshObject::step4()
 		}
 
 	}
-	//³B²zB¦V¶q  ©M   ¤jW³¡¤À
+	//è™•ç†Bå‘é‡  å’Œ   å¤§Wéƒ¨åˆ†
 	std::vector<double> funx;
 	std::vector<double> funy;
 	std::vector<double> funweight;
@@ -718,7 +720,7 @@ void MeshObject::step4()
 			//std::cout << "change_innerpoints_ID" << model.mesh2.property(change_innerpoints_ID, *v_it) << std::endl;
 			for (int i = 0; i < model.mesh2.property(adjacent_point_num_ID, *v_it).size(); i++)
 			{
-				//std::cout <<"»P "<< *v_it <<" ¬Û¾Fªº¦³ "<< model.mesh2.property(adjacent_point_num_ID, *v_it)[i] << std::endl;
+				//std::cout <<"èˆ‡ "<< *v_it <<" ç›¸é„°çš„æœ‰ "<< model.mesh2.property(adjacent_point_num_ID, *v_it)[i] << std::endl;
 				funx.push_back(model.mesh2.property(X, (model.mesh2.property(adjacent_point_num_ID, *v_it)[i])));
 				funy.push_back(model.mesh2.property(Y, (model.mesh2.property(adjacent_point_num_ID, *v_it)[i])));
 				funweight.push_back(model.mesh2.property(fun_weight, (model.mesh2.property(adjacent_point_num_ID, *v_it)[i])));
@@ -729,8 +731,8 @@ void MeshObject::step4()
 				//std::cout <<"funweight[i]"<< funweight[i] << std::endl;
 				//std::cout << "funx[i]" << funx[i] << std::endl;
 				//std::cout << "funy[i]" << funy[i] << std::endl;
-				funx_total += funx[i];//<-------------------------------------¬Û¾FÂIxÁ`©M
-				funy_total += funy[i];//<-------------------------------------¬Û¾FÂIyÁ`©M
+				funx_total += funx[i];//<-------------------------------------ç›¸é„°é»xç¸½å’Œ
+				funy_total += funy[i];//<-------------------------------------ç›¸é„°é»yç¸½å’Œ
 				funweight_total += funweight[i];
 			}
 			funx_total_final.push_back(funx_total);
@@ -748,7 +750,7 @@ void MeshObject::step4()
 		}
 	}
 	int time=clock();
-	//¸Ñ½u©Ê¤èµ{
+	//è§£ç·šæ€§æ–¹ç¨‹
 	int size = inner_point_num;
 	SparseMatrix<double, Eigen::ColMajor> inner_points_edge(size, size);
 	for (int i = 0; i < size; i++)
@@ -801,7 +803,7 @@ void MeshObject::step4()
 	VectorXd X = linearSolver.solve(B);
 	VectorXd Y = linearSolver.solve(C);
 	
-	//§âºâ¥XªºÂI¦s¦^ property(v_2d)
+	//æŠŠç®—å‡ºçš„é»å­˜å› property(v_2d)
 	for (int i = 0; i < X.size(); i++)
 	{
 		for (MyMesh::VertexIter v_it = model.mesh2.vertices_begin(); v_it != model.mesh2.vertices_end(); ++v_it)
@@ -813,17 +815,17 @@ void MeshObject::step4()
 		}
 	}
 	struct Mesh_tex_record record;
-	//³Ì«áÂIªº¦ì¸m
+	//æœ€å¾Œé»çš„ä½ç½®
 	for (MyMesh::VertexIter v_it = model.mesh2.vertices_begin(); v_it != model.mesh2.vertices_end(); ++v_it)
 	{
 		//std::cout << "FINAL============================================FINAL" << std::endl;
-		//std::cout<<"²Ä "<< v_it<<" ­ÓÂI¦ì¸m "<<model.mesh2.property(v_2d, *v_it)<<std::endl ;
+		//std::cout<<"ç¬¬ "<< v_it<<" å€‹é»ä½ç½® "<<model.mesh2.property(v_2d, *v_it)<<std::endl ;
 		
 		record.mesh_id = mesh_id;
 		record.x.push_back(model.mesh2.property(v_2d, *v_it)[0]);
-		//std::cout << "²Ä " << v_it << " ­ÓÂI¦ì¸m " << model.mesh2.property(v_2d, *v_it)[0] << std::endl;
+		//std::cout << "ç¬¬ " << v_it << " å€‹é»ä½ç½® " << model.mesh2.property(v_2d, *v_it)[0] << std::endl;
 		record.y.push_back(model.mesh2.property(v_2d, *v_it)[1]);
-		//std::cout << "²Ä " << v_it << " ­ÓÂI¦ì¸m " << model.mesh2.property(v_2d, *v_it)[1] << std::endl;					
+		//std::cout << "ç¬¬ " << v_it << " å€‹é»ä½ç½® " << model.mesh2.property(v_2d, *v_it)[1] << std::endl;					
 	}
 	if(new_mesh == 0)
 		mesh_record[mesh_id] = record;
@@ -1206,7 +1208,7 @@ void MeshObject::other_mesh_increase()
 			if (std::find(selectedFace.begin(), selectedFace.end(), boundary[i]) != selectedFace.end())
 			{
 				num++;
-				//std::cout << "¬İ "<< num<< std::endl;
+				//std::cout << "çœ‹ "<< num<< std::endl;
 			}
 
 		}
@@ -1296,7 +1298,7 @@ void MeshObject::load_tex_info()
 	}
 	std::cout << "tex_info_finish"<<std::endl;
 	struct Mesh_tex_record record;
-	//³Ì«áÂIªº¦ì¸m
+	//æœ€å¾Œé»çš„ä½ç½®
 	for (MyMesh::VertexIter v_it = model.mesh2.vertices_begin(); v_it != model.mesh2.vertices_end(); ++v_it)
 	{
 		record.mesh_id = mesh_id;
@@ -1308,7 +1310,7 @@ void MeshObject::load_tex_info()
 	else
 		mesh_record.push_back(record);
 	std::cout << " size " << mesh_record.size() << std::endl;
-	std::cout <<  "ÂI¼Æ " << mesh_record[mesh_id].x.size() << std::endl;
+	std::cout <<  "é»æ•¸ " << mesh_record[mesh_id].x.size() << std::endl;
 	LoadToShader2();
 	
 }
