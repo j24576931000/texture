@@ -129,13 +129,6 @@ bool GLMesh::Init(std::string fileName)
 	return false;
 }
 
-/*void GLMesh::Render()
-{
-	glBindVertexArray(vao);
-	glDrawElements(GL_TRIANGLES, mesh.n_faces() * 3, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-}*/
-
 
 bool GLMesh::LoadModel(std::string fileName)
 {
@@ -216,56 +209,6 @@ void GLMesh::LoadToShader()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
-void GLMesh::LoadToShader2()
-{
-
-
-	//std::vector<MyMesh::Point> vertices2;
-	//vertices2.reserve(mesh.n_vertices());
-	//for (MyMesh::VertexIter v_it = mesh2.vertices_begin(); v_it != mesh2.vertices_end(); ++v_it)
-	//{
-	//	vertices2.push_back(mesh2.point(*v_it));
-	//}
-
-	//std::vector<MyMesh::Normal> normals2;
-	//normals2.reserve(mesh2.n_vertices());
-	//for (MyMesh::VertexIter v_it = mesh2.vertices_begin(); v_it != mesh2.vertices_end(); ++v_it)
-	//{
-	//	normals2.push_back(mesh2.normal(*v_it));
-	//}
-
-	//std::vector<unsigned int> indices2;
-	//indices2.reserve(mesh2.n_faces() * 3);
-	//for (MyMesh::FaceIter f_it = mesh2.faces_begin(); f_it != mesh2.faces_end(); ++f_it)
-	//{
-	//	for (MyMesh::FaceVertexIter fv_it = mesh2.fv_iter(*f_it); fv_it.is_valid(); ++fv_it)
-	//	{
-	//		indices2.push_back(fv_it->idx());
-	//	}
-	//}
-
-	//glGenVertexArrays(1, &vao2);
-	//glBindVertexArray(vao2);
-
-	//glGenBuffers(1, &vboVertices2);
-	//glBindBuffer(GL_ARRAY_BUFFER, vboVertices2);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(MyMesh::Point) * vertices2.size(), &vertices2[0], GL_STATIC_DRAW);
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	//glEnableVertexAttribArray(0);
-
-	//glGenBuffers(1, &vboNormal2);
-	//glBindBuffer(GL_ARRAY_BUFFER, vboNormal2);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(MyMesh::Normal) * normals2.size(), &normals2[0], GL_STATIC_DRAW);
-	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	//glEnableVertexAttribArray(1);
-
-	//glGenBuffers(1, &ebo2);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo2);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * indices2.size(), &indices2[0], GL_STATIC_DRAW);
-
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//glBindVertexArray(0);
-}
 #pragma endregion
 
 MeshObject::MeshObject()
@@ -317,13 +260,11 @@ void MeshObject::RenderSelectedFace()
 
 bool MeshObject::AddSelectedFace(unsigned int faceID)
 {
-	
-	//std::cout << "faceID:   " << faceID << std::endl;
-	if (multi_select == true)
+	if (multi_select == true)//multi-select
 	{
 		multiselect(faceID);
 	}
-	else if (multi_select == false&&edit_num == 2)
+	else if (multi_select == false&&edit_num == 2)//other_mesh_increase
 	{
 		if (std::find(selectedFace.begin(), selectedFace.end(), faceID) == selectedFace.end() &&
 			faceID >= 0 && faceID < model.mesh.n_faces())
@@ -337,11 +278,11 @@ bool MeshObject::AddSelectedFace(unsigned int faceID)
 		}	
 	}
 	
-	else if (edit == true&&edit_mode==true&& edit_num==1&& multi_select == false)
+	else if (edit == true&&edit_mode==true&& edit_num==1&& multi_select == false)//mesh_move
 	{
 		mesh_move(faceID);
 	}
-	else
+	else//normal select
 	{
 		if (std::find(selectedFace.begin(), selectedFace.end(), faceID) == selectedFace.end() &&
 			faceID >= 0 && faceID < model.mesh.n_faces() )
@@ -349,11 +290,7 @@ bool MeshObject::AddSelectedFace(unsigned int faceID)
 			selectedFace.push_back(faceID);
 		}			
 	}
-	/*if (std::find(is_used.begin(), is_used.end(), faceID) == is_used.end() &&
-		faceID >= 0 && faceID < model.mesh.n_faces())
-	{
-		is_used.push_back(faceID);
-	}*/
+
 	return false;
 }
 bool MeshObject::AddSelectedFacefinished()
@@ -374,33 +311,28 @@ bool MeshObject::AddSelectedFacefinished()
 		}
 	}
 
-	//if (change_mesh == 0)
-	//{
 	//add point到new mesh
 	for (int i = 0; i < selectedpoint.size(); i++)
 	{
-		vhandle.push_back(model.mesh2.add_vertex(MyMesh::Point(model.mesh.point(selectedpoint[i]))));
-		model.mesh.property(vertexId, selectedpoint[i]) = vhandle[i];
-		//std::cout  << "add選的點到new mesh和對應新舊點vertex ID:   " << model.mesh.property(vertexId, selectedpoint[i]) << std::endl;
+		vhandle.push_back(model.mesh2.add_vertex(MyMesh::Point(model.mesh.point(selectedpoint[i]))));//add選的點到new mesh
+		model.mesh.property(vertexId, selectedpoint[i]) = vhandle[i];//對應新舊點vertex ID
 	}
 	//add face到new mesh
 	std::vector<MyMesh::VertexHandle>  face_vhandles;
-	//for (MyMesh::FaceIter f_it = model.mesh.faces_begin(); f_it != model.mesh.faces_end(); ++f_it)
-	//{
+
 	for (int i = 0; i < selectedFace.size(); i++)
 	{
 		for (MyMesh::FaceVertexIter fv_it = model.mesh.fv_iter((OpenMesh::ArrayKernel::FaceHandle)selectedFace[i]); fv_it.is_valid(); ++fv_it)
 		{
 			face_vhandles.push_back(model.mesh.property(vertexId, *fv_it));
-			//std::cout <<  "add face到new mesh:   " << model.mesh.property(vertexId, *fv_it) << std::endl;
 		}
 		model.mesh2.add_face(face_vhandles);
 		face_vhandles.clear();
 	}
-	//}
+
 	vhandle.clear();
 	model.mesh_tex[mesh_id] = model.mesh2;
-	//}
+
 	selectedpoint.clear();
 	if (edit_num != 3)
 	{
@@ -415,17 +347,14 @@ void MeshObject::new_mesh_info()
 	model.mesh2.add_property(change_innerpoints_ID);
 	//測試存邊界的點
 	model.mesh2.add_property(pp2);
-	//std::cout << "pp2 correct" << std::endl;
+
 	for (MyMesh::VertexIter v_it = model.mesh2.vertices_begin(); v_it != model.mesh2.vertices_end(); ++v_it)
 	{
-		//std::cout << " 看這裡*v_it   : " << *v_it << std::endl;
 		for (MyMesh::VertexVertexIter vv_it = model.mesh2.vv_iter(*v_it); vv_it.is_valid(); ++vv_it)
 		{
 			//找內部點的相鄰的點
 			if (!model.mesh2.is_boundary(*v_it))
 			{
-				//std::cout <<  " 看這裡*vv_it   : "<<*vv_it  << std::endl;
-				//adjacent_point_num ++;
 				if (model.mesh2.is_boundary(*vv_it))
 				{
 					model.mesh2.property(adjacent_point_num_ID, *v_it).push_back(*vv_it);
@@ -442,7 +371,6 @@ void MeshObject::new_mesh_info()
 		{
 			model.mesh2.property(change_innerpoints_ID, *v_it) = -1;
 			model.mesh2.property(pp2, *v_it) = model.mesh2.point(*v_it);//存邊界的點
-			//std::cout << *v_it << " *v_it:   " << model.mesh2.property(pp2, *v_it) << std::endl;
 		}
 	}
 	model.mesh2.remove_property(pp2);
@@ -468,31 +396,14 @@ void MeshObject::CaculateWeight()
 			heh = model.mesh2.halfedge_handle(*e_it, 1);//左邊
 			heh2 = model.mesh2.halfedge_handle(*e_it, 0);//右邊
 
-			//std::cout << model.mesh2.to_vertex_handle(heh) << std::endl;
 			vertex_j = model.mesh2.from_vertex_handle(heh);//<---------------------------------------------vertex_j
-
-			//std::cout << vertex_j << std::endl;
-			//std::cout << model.mesh2.from_vertex_handle(heh) << std::endl;
 			vertex_i = model.mesh2.to_vertex_handle(heh);//<---------------------------------------------vertex_i
-			/*std::cout << vertex_i << std::endl;
 
-			std::cout << model.mesh2.to_vertex_handle(heh2) << std::endl;
-			std::cout << model.mesh2.from_vertex_handle(heh2) << std::endl;
-			std::cout << "heh: " << heh << std::endl;
-			std::cout << "heh2: " << heh2 << std::endl;
-			std::cout << "---------------------------------------- " << std::endl;*/
 			heh_next = model.mesh2.next_halfedge_handle(heh);
 			heh_next2 = model.mesh2.next_halfedge_handle(heh2);
-			//heh_pre = model.mesh2.prev_halfedge_handle(heh);
-			//std::cout << "hehnext: " << heh_next << std::endl;
-			//std::cout << "hehnext2: " << heh_next2 << std::endl;
-			//std::cout << "---------------------------------------- " << std::endl;
 
 			vertex_j_next = model.mesh2.to_vertex_handle(heh_next);//<---------------------------------------------vertex_j_next
-			//std::cout << vertex_j_next << std::endl;
 			vertex_j_prev = model.mesh2.to_vertex_handle(heh_next2);//<---------------------------------------------vertex_j_prev
-			/*std::cout << vertex_j_prev << std::endl;
-			std::cout << "---------------------------------------- " << std::endl;*/
 
 			OpenMesh::Vec3f v1 = model.mesh2.point(vertex_i) - model.mesh2.point(vertex_j);
 			OpenMesh::Vec3f v2 = model.mesh2.point(vertex_i) - model.mesh2.point(vertex_j_prev);
@@ -534,18 +445,16 @@ void MeshObject::step3()
 	{
 		if (model.mesh2.is_boundary(*e_it))
 		{
-			//std::cout << *e_it << " *e_it:   "  << std::endl;
 			TriMesh::HalfedgeHandle heh, heh_next;
+
 			heh = model.mesh2.halfedge_handle(model.mesh2.to_vertex_handle(*e_it));//1.挑一個點繞boundary的邊
-			v_boundary.push_back(model.mesh2.to_vertex_handle(heh));//1.挑一個點繞boundary的邊		
-			//std::cout << model.mesh2.point(model.mesh2.to_vertex_handle(heh)) - model.mesh2.point(model.mesh2.from_vertex_handle(heh)) << std::endl;
+			v_boundary.push_back(model.mesh2.to_vertex_handle(heh));//1.挑一個點繞boundary的邊			
 			dis.push_back(distance(model.mesh2.point(model.mesh2.to_vertex_handle(heh)) - model.mesh2.point(model.mesh2.from_vertex_handle(heh)))); //2.算距離
 
 			while (*e_it != heh)
 			{
 				heh = model.mesh2.halfedge_handle(model.mesh2.to_vertex_handle(heh));//1.挑一個點繞boundary的邊
 				v_boundary.push_back(model.mesh2.to_vertex_handle(heh));//1.挑一個點繞boundary的邊
-				//std::cout << model.mesh2.point(model.mesh2.to_vertex_handle(heh)) - model.mesh2.point(model.mesh2.from_vertex_handle(heh)) << std::endl;
 				dis.push_back(distance(model.mesh2.point(model.mesh2.to_vertex_handle(heh)) - model.mesh2.point(model.mesh2.from_vertex_handle(heh))));//2.算距離
 			}
 			break;
@@ -554,17 +463,15 @@ void MeshObject::step3()
 	//算周長
 	for (int i = 0; i < dis.size(); i++)
 	{
-		//std::cout << "dis: "<<i <<"="<< dis[i] << std::endl;
 		dis_total = dis_total + dis[i];
 	}
-	//map到貼圖座標
 
+	//map到貼圖座標
 	for (int i = 1; i < v_boundary.size(); i++)
 	{
-		//std::cout << dis[i] / dis_total * 4 << std::endl;
 		dis_tmp = dis_tmp + dis[i] / dis_total * 4;
 		model.mesh2.property(v_2d, v_boundary[0]) = OpenMesh::Vec2f(0, 0);//(x,0)
-		//std::cout <<"dis_tmp: "<< dis_tmp << std::endl;
+
 		if ((0 + dis_tmp) <= 1)
 		{
 			model.mesh2.property(v_2d, v_boundary[i]) = OpenMesh::Vec2f(0 + dis_tmp, 0);//(x,0)			
@@ -602,7 +509,7 @@ void MeshObject::step3()
 	dis_total = 0;
 	dis_tmp = 0;
 	v_boundary.clear();
-	//std::cout << inner_point_num << std::endl;
+
 	if (inner_point_num > 0)
 	{
 		step4();
@@ -614,21 +521,19 @@ void MeshObject::step3()
 		//最後點的位置
 		for (MyMesh::VertexIter v_it = model.mesh2.vertices_begin(); v_it != model.mesh2.vertices_end(); ++v_it)
 		{
-
-
 			record.mesh_id = mesh_id;
 			record.x.push_back(model.mesh2.property(v_2d, *v_it)[0]);
 			record.y.push_back(model.mesh2.property(v_2d, *v_it)[1]);
 		}
-		if (new_mesh == 0)
+		if (new_mesh == 0)//對已存在的貼圖mesh編輯
 			mesh_record[mesh_id] = record;
-		else
+		else//新的貼圖mesh
 			mesh_record.push_back(record);
-		//std::cout << " 點 " << mesh_record.size() << std::endl;
-		//std::cout << "第 " << " 個點 " << mesh_record[mesh_id].x.size() << std::endl;
+
 		LoadToShader2();
 	}
 }
+//填矩陣並解Ax=b
 void MeshObject::step4()
 {
 	model.mesh2.add_property(X);
@@ -651,30 +556,25 @@ void MeshObject::step4()
 		TriMesh::HalfedgeHandle heh;
 		if (!model.mesh2.is_boundary(*e_it))
 		{
-			//std::cout << "*e_it" << *e_it << std::endl;
 			heh = model.mesh2.halfedge_handle(*e_it, 0);
-			//std::cout << "heh" << heh << std::endl;
-			if (model.mesh2.is_boundary(model.mesh2.to_vertex_handle(heh)))
+			
+			if (model.mesh2.is_boundary(model.mesh2.to_vertex_handle(heh)))//b矩陣，w*p
 			{
 				OpenMesh::Vec2f v2 = model.mesh2.property(v_2d, model.mesh2.to_vertex_handle(heh));
-				//std::cout << "v2" << v2 << ": "<< model.mesh2.property(weight, *e_it) <<std::endl;
+
 				model.mesh2.property(X, model.mesh2.to_vertex_handle(heh)) = v2[0] * model.mesh2.property(weight, *e_it);//point.x*weight
 				model.mesh2.property(Y, model.mesh2.to_vertex_handle(heh)) = v2[1] * model.mesh2.property(weight, *e_it);//point.y*weight
-				model.mesh2.property(fun_weight, model.mesh2.to_vertex_handle(heh)) = model.mesh2.property(weight, *e_it);
-				//std::cout << "x" << model.mesh2.property(X, model.mesh2.to_vertex_handle(heh)) << std::endl;
-				//std::cout << "y" << model.mesh2.property(Y, model.mesh2.to_vertex_handle(heh)) << std::endl;
+				model.mesh2.property(fun_weight, model.mesh2.to_vertex_handle(heh)) = model.mesh2.property(weight, *e_it);//weight
 			}
-			else if (model.mesh2.is_boundary(model.mesh2.from_vertex_handle(heh)))
+			else if (model.mesh2.is_boundary(model.mesh2.from_vertex_handle(heh)))//b矩陣，w*p
 			{
 				OpenMesh::Vec2f v1 = model.mesh2.property(v_2d, model.mesh2.from_vertex_handle(heh));
-				//std::cout << "v2" << v1 << ": " << model.mesh2.property(weight, *e_it) << std::endl;
+
 				model.mesh2.property(X, model.mesh2.from_vertex_handle(heh)) = v1[0] * model.mesh2.property(weight, *e_it);//point.x*weight
 				model.mesh2.property(Y, model.mesh2.from_vertex_handle(heh)) = v1[1] * model.mesh2.property(weight, *e_it);//point.y*weight
-				model.mesh2.property(fun_weight, model.mesh2.from_vertex_handle(heh)) = model.mesh2.property(weight, *e_it);
-				//std::cout << "x" << model.mesh2.property(X, model.mesh2.to_vertex_handle(heh)) << std::endl;
-				//std::cout << "y" << model.mesh2.property(Y, model.mesh2.to_vertex_handle(heh)) << std::endl;
+				model.mesh2.property(fun_weight, model.mesh2.from_vertex_handle(heh)) = model.mesh2.property(weight, *e_it);//weight
 			}
-			else if (!model.mesh2.is_boundary(model.mesh2.from_vertex_handle(heh)) && !model.mesh2.is_boundary(model.mesh2.to_vertex_handle(heh)))
+			else if (!model.mesh2.is_boundary(model.mesh2.from_vertex_handle(heh)) && !model.mesh2.is_boundary(model.mesh2.to_vertex_handle(heh)))//A矩陣w
 			{
 				int tmp = 0, tmp2 = 0;
 				if (model.mesh2.property(change_innerpoints_ID, model.mesh2.from_vertex_handle(heh)) > model.mesh2.property(change_innerpoints_ID, model.mesh2.to_vertex_handle(heh)))
@@ -692,15 +592,12 @@ void MeshObject::step4()
 			}
 		}
 	}
-	//讓ji邊同步跟ij邊變一樣
+	//讓ji邊同步跟ij邊變一樣，A矩陣01和10位置值是一樣的，以此類推
 	for (int i = 0; i < vertexnewID.size(); i++)
 	{
-		//std::cout <<" vertexnewID[i].size() "<< vertexnewID[i].size() << std::endl;
 		for (int j = 0; j < vertexnewID[i].size(); j++)
 		{
 			vertexnewID[j][i] = vertexnewID[i][j];
-			//std::cout <<"i= "<<i<<" j= "<<j<< " vertexnewID[i][j]"<< vertexnewID[i][j] <<std::endl;
-
 		}
 
 	}
@@ -716,31 +613,24 @@ void MeshObject::step4()
 	{
 		if (!model.mesh2.is_boundary(*v_it))
 		{
-			//std::cout << *v_it << "v_it ===================================================================="  << std::endl;
-			//std::cout << "change_innerpoints_ID" << model.mesh2.property(change_innerpoints_ID, *v_it) << std::endl;
 			for (int i = 0; i < model.mesh2.property(adjacent_point_num_ID, *v_it).size(); i++)
 			{
 				//std::cout <<"與 "<< *v_it <<" 相鄰的有 "<< model.mesh2.property(adjacent_point_num_ID, *v_it)[i] << std::endl;
-				funx.push_back(model.mesh2.property(X, (model.mesh2.property(adjacent_point_num_ID, *v_it)[i])));
-				funy.push_back(model.mesh2.property(Y, (model.mesh2.property(adjacent_point_num_ID, *v_it)[i])));
-				funweight.push_back(model.mesh2.property(fun_weight, (model.mesh2.property(adjacent_point_num_ID, *v_it)[i])));
+				funx.push_back(model.mesh2.property(X, (model.mesh2.property(adjacent_point_num_ID, *v_it)[i])));//相鄰點x，b矩陣
+				funy.push_back(model.mesh2.property(Y, (model.mesh2.property(adjacent_point_num_ID, *v_it)[i])));//相鄰點y，b矩陣
+				funweight.push_back(model.mesh2.property(fun_weight, (model.mesh2.property(adjacent_point_num_ID, *v_it)[i])));//W，A矩陣
 			}
 
 			for (int i = 0; i < funx.size(); i++)
 			{
-				//std::cout <<"funweight[i]"<< funweight[i] << std::endl;
-				//std::cout << "funx[i]" << funx[i] << std::endl;
-				//std::cout << "funy[i]" << funy[i] << std::endl;
-				funx_total += funx[i];//<-------------------------------------相鄰點x總和
-				funy_total += funy[i];//<-------------------------------------相鄰點y總和
-				funweight_total += funweight[i];
+				funx_total += funx[i];//<-------------------------------------相鄰點x總和，b矩陣
+				funy_total += funy[i];//<-------------------------------------相鄰點y總和，b矩陣
+				funweight_total += funweight[i];//<---------------------------W，A矩陣
 			}
 			funx_total_final.push_back(funx_total);
 			funy_total_final.push_back(funy_total);
 			funweight_total_final.push_back(funweight_total);
-			//std::cout << "funx_total " << funx_total << std::endl;
-			//std::cout << "funy_total " << funy_total << std::endl;
-			//std::cout << "funweight_total " << funy_total << std::endl;
+
 			funx_total = 0;
 			funy_total = 0;
 			funweight_total = 0;
@@ -749,16 +639,16 @@ void MeshObject::step4()
 			funweight.clear();
 		}
 	}
+
+	//這邊開始使用Eigen解線性方程(least square solution)
 	int time=clock();
-	//解線性方程
+	//填入A矩陣
 	int size = inner_point_num;
 	SparseMatrix<double, Eigen::ColMajor> inner_points_edge(size, size);
 	for (int i = 0; i < size; i++)
 	{
-
 		for (int j = i + 1; j < size; j++)
 		{
-			//std::cout << i<<j<<" vertexnewID[i][j] "<< vertexnewID[i][j] << std::endl;
 			if (vertexnewID[i][j] != 0)
 			{
 				inner_points_edge.insert(i, j) = inner_points_edge.insert(j, i) = -(vertexnewID[i][j]);
@@ -767,41 +657,43 @@ void MeshObject::step4()
 		}
 		for (int k = i - 1; k >= 0; k--)
 		{
-			//std::cout << i << k << " vertexnewID[i][k] " << vertexnewID[i][k] << std::endl;
 			if (vertexnewID[i][k] != 0)
 			{
 				funweight_total_final[i] += vertexnewID[i][k];
 			}
 		}
-		//std::cout<<funweight_total_final[i] << std::endl;
 		inner_points_edge.insert(i, i) = funweight_total_final[i];
 	}
-	int time2 = clock();
 
+	int time2 = clock();
 	std::cout << "time  "<<time2- time << std::endl;
+
+	//填入b矩陣，x座標
 	inner_points_edge.makeCompressed();
 	VectorXd B(size);
 	for (int i = 0; i < B.size(); i++)
 	{
-		//std::cout << "funx_total_final[i]"<<funx_total_final[i] << std::endl;
 		B[i] = funx_total_final[i];
 	}
-	//std::cout << B << std::endl;
+
+	//填入b矩陣，y座標
 	VectorXd C(size);
 	for (int i = 0; i < C.size(); i++)
 	{
-		//std::cout << "funy_total_final[i]" << funy_total_final[i] << std::endl;
 		C[i] = funy_total_final[i];;
 	}
-	//std::cout << C << std::endl;
+
 	int start = clock();
-	Eigen::SimplicialCholesky<SparseMatrix<double >> linearSolver(inner_points_edge.transpose()*inner_points_edge);
+
+	Eigen::SimplicialCholesky<SparseMatrix<double >> linearSolver(inner_points_edge.transpose()*inner_points_edge);//開始解LS
 	//SparseQR<SparseMatrix<double>, COLAMDOrdering<int>> linearSolver;
 	linearSolver.compute(inner_points_edge);
 	int end = clock();
 	std::cout << "linearSolver time  " <<  end- start << std::endl;
-	VectorXd X = linearSolver.solve(B);
-	VectorXd Y = linearSolver.solve(C);
+
+
+	VectorXd X = linearSolver.solve(B);//取出解完的內部點x座標矩陣
+	VectorXd Y = linearSolver.solve(C);//取出解完的內部點y座標矩陣
 	
 	//把算出的點存回 property(v_2d)
 	for (int i = 0; i < X.size(); i++)
@@ -814,6 +706,7 @@ void MeshObject::step4()
 			}
 		}
 	}
+
 	struct Mesh_tex_record record;
 	//最後點的位置
 	for (MyMesh::VertexIter v_it = model.mesh2.vertices_begin(); v_it != model.mesh2.vertices_end(); ++v_it)
@@ -827,10 +720,11 @@ void MeshObject::step4()
 		record.y.push_back(model.mesh2.property(v_2d, *v_it)[1]);
 		//std::cout << "第 " << v_it << " 個點位置 " << model.mesh2.property(v_2d, *v_it)[1] << std::endl;					
 	}
-	if(new_mesh == 0)
+	if(new_mesh == 0)//對已存在的貼圖mesh編輯
 		mesh_record[mesh_id] = record;
-	else 
+	else//新的貼圖mesh
 		mesh_record.push_back(record);
+
 	funx_total_final.clear();
 	funy_total_final.clear();
 	funweight_total_final.clear();
@@ -840,7 +734,7 @@ void MeshObject::step4()
 	funx_total_final.clear();
 	funy_total_final.clear();
 	std::cout << "solve " << mesh_id << std::endl;
-	model.mesh_tex[mesh_id] = model.mesh2;
+	model.mesh_tex[mesh_id] = model.mesh2;//解完存取來，mesh_id就是第幾張貼圖
 	LoadToShader2();
 }
 
@@ -854,7 +748,6 @@ void MeshObject::LoadToShader2()
 		//std::cout << "pos: " << model.mesh2.point(*v_it) << std::endl;
 	}
 
-
 	std::vector<MyMesh::Normal> normals2;
 	normals2.reserve(model.mesh2.n_vertices());
 	for (MyMesh::VertexIter v_it = model.mesh2.vertices_begin(); v_it != model.mesh2.vertices_end(); ++v_it)
@@ -863,6 +756,7 @@ void MeshObject::LoadToShader2()
 		normals2.push_back(model.mesh.normal(v2_p));
 		//std::cout << "normal: " << model.mesh.normal(v2_p) << std::endl;
 	}
+
 	std::vector<OpenMesh::Vec2f> texture2;
 	texture2.reserve(model.mesh2.n_vertices());
 	for (MyMesh::VertexIter v_it = model.mesh2.vertices_begin(); v_it != model.mesh2.vertices_end(); ++v_it)
@@ -881,6 +775,7 @@ void MeshObject::LoadToShader2()
 			//std::cout << "indices: " << fv_it->idx() << std::endl;
 		}
 	}
+
 	std::vector<unsigned int> indices3;
 	indices3.reserve(model.mesh2.n_edges() * 2);
 	for (MyMesh::EdgeIter e_it = model.mesh2.edges_begin(); e_it != model.mesh2.edges_end(); ++e_it)
@@ -889,6 +784,7 @@ void MeshObject::LoadToShader2()
 		indices3.push_back((model.mesh2.to_vertex_handle(now)).idx());
 		indices3.push_back((model.mesh2.from_vertex_handle(now)).idx());
 	}
+
 	glGenVertexArrays(1, &mesh_vao[mesh_id]);
 	glBindVertexArray(mesh_vao[mesh_id]);
 
@@ -909,7 +805,7 @@ void MeshObject::LoadToShader2()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(OpenMesh::Vec2f) * texture2.size(), &texture2[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(2);
-	std::cout << "texure: "<<model.mesh_tex[mesh_id].n_faces()<<" :id"<< mesh_id << std::endl;
+	//std::cout << "texure: "<<model.mesh_tex[mesh_id].n_faces()<<" :id"<< mesh_id << std::endl;
 
 	glGenBuffers(1, &mesh_ebo[mesh_id]);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_ebo[mesh_id]);
